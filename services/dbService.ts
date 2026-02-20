@@ -1,15 +1,8 @@
 
-import localforage from 'localforage';
 import { AppState, MemberAdvanceDetails, InstructionSection } from '../types';
 import { MEMBERS, INITIAL_BILLS, generateInitialRent } from '../constants';
 
 const DB_KEY = 'auburn_house_master_v1';
-
-localforage.config({
-  name: 'AuburnHouseDB',
-  storeName: 'house_management_data',
-  description: 'Persistent storage for Auburn House management system'
-});
 
 const DEFAULT_INSTRUCTIONS: InstructionSection[] = [
   {
@@ -93,7 +86,9 @@ export const getInitialState = (): AppState => {
 export const database = {
   load: async (): Promise<AppState> => {
     try {
-      const data = await localforage.getItem<AppState>(DB_KEY);
+      const response = await fetch('/api/state');
+      if (!response.ok) throw new Error('Failed to fetch state');
+      const data = await response.json();
       if (data) {
         return data;
       }
@@ -105,13 +100,21 @@ export const database = {
   },
   save: async (state: AppState): Promise<void> => {
     try {
-      await localforage.setItem(DB_KEY, state);
+      await fetch('/api/state', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(state)
+      });
     } catch (error) {
       console.error('Database: Save failed', error);
     }
   },
   clear: async (): Promise<void> => {
-    await localforage.clear();
-    window.location.reload();
+    try {
+      await fetch('/api/clear', { method: 'POST' });
+      window.location.reload();
+    } catch (error) {
+      console.error('Database: Clear failed', error);
+    }
   }
 };

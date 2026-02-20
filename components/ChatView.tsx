@@ -113,8 +113,12 @@ const ChatView: React.FC<ChatViewProps> = ({ state, onUpdateHistory }) => {
     setIsLoading(true);
 
     try {
-      // Fix: Follow the named parameter rule and use process.env.API_KEY directly.
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey || apiKey === 'undefined') {
+        throw new Error('GEMINI_API_KEY is missing. Please set it in your environment variables.');
+      }
+
+      const ai = new GoogleGenAI({ apiKey });
       const context = generateHouseContext();
       
       const response = await ai.models.generateContent({
@@ -143,11 +147,14 @@ const ChatView: React.FC<ChatViewProps> = ({ state, onUpdateHistory }) => {
       };
 
       onUpdateHistory([...updatedHistory, aiMessage]);
-    } catch (error) {
+    } catch (error: any) {
       console.error('AI Error:', error);
+      const isAuthError = error.message?.includes('API_KEY') || error.message?.includes('401') || error.message?.includes('403');
       const errorMessage: ChatMessage = {
         role: 'model',
-        text: "My connection to the house grid is flickering. Try again in a second!",
+        text: isAuthError 
+          ? "My brain is locked! The GEMINI_API_KEY seems to be missing or invalid in the house settings (Vercel env vars)."
+          : "My connection to the house grid is flickering. Try again in a second!",
         timestamp: new Date().toISOString()
       };
       onUpdateHistory([...updatedHistory, errorMessage]);
@@ -159,7 +166,7 @@ const ChatView: React.FC<ChatViewProps> = ({ state, onUpdateHistory }) => {
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] md:h-[calc(100vh-1rem)] w-full bg-white dark:bg-slate-900 border-x border-slate-100 dark:border-slate-800 shadow-2xl overflow-hidden animate-in fade-in duration-300">
       {/* Header - Compact */}
-      <header className="bg-primary p-4 sm:p-5 text-white flex justify-between items-center relative overflow-hidden shrink-0">
+      <header className="bg-primary p-4 sm:p-5 pt-[calc(env(safe-area-inset-top)+1rem)] sm:pt-5 text-white flex justify-between items-center relative overflow-hidden shrink-0">
         <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary-hover to-indigo-900 animate-gradient opacity-50" />
         <div className="relative z-10 flex items-center gap-3">
           <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/30">

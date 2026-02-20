@@ -402,7 +402,7 @@ const App: React.FC = () => {
       {/* SIDEBAR - LUXURIOUS REFINEMENT */}
       <nav className={`fixed inset-y-0 left-0 w-64 bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800 z-[100] transition-transform duration-300 md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:flex shadow-2xl flex flex-col h-screen overflow-hidden`}>
         {/* Sidebar Header - High Brand Impact */}
-        <div className="p-6 border-b dark:border-slate-800 shrink-0">
+        <div className="p-6 pt-[calc(env(safe-area-inset-top)+1.5rem)] md:pt-6 border-b dark:border-slate-800 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 bg-primary rounded-xl flex items-center justify-center text-white font-black text-xl shadow-xl shadow-primary/20 shrink-0 italic">A</div>
             <span className="text-2xl font-black tracking-tighter text-slate-800 dark:text-white uppercase italic leading-none">Auburn</span>
@@ -459,10 +459,19 @@ const App: React.FC = () => {
         </div>
       </nav>
 
-      <main className={`flex-grow md:ml-64 w-full relative transition-all ${isFullScreenView ? 'p-0 max-w-none' : 'p-4 sm:p-6 md:p-12 max-w-7xl mx-auto'}`}>
+      <main className={`flex-grow md:ml-64 w-full relative transition-all ${isFullScreenView ? 'p-0 max-w-none' : 'p-4 sm:p-6 md:p-12 pt-[env(safe-area-inset-top)] sm:pt-6 md:pt-12 max-w-7xl mx-auto'}`}>
         {!isFullScreenView && (
-          <div className="flex justify-between items-center mb-6 min-h-[48px]">
-             <button className="md:hidden p-3 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800" onClick={() => setIsSidebarOpen(true)}><Menu size={20} className="text-slate-500" /></button>
+          <div className="flex justify-between items-center mb-6 min-h-[64px] md:min-h-[48px]">
+             <button 
+               className="md:hidden p-4 bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-800 active:scale-90 transition-all z-[110] flex items-center justify-center" 
+               onClick={(e) => {
+                 e.stopPropagation();
+                 setIsSidebarOpen(true);
+               }}
+               aria-label="Open Menu"
+             >
+               <Menu size={24} className="text-primary" />
+             </button>
              
              {showBackButton && (
                  <button 
