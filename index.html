@@ -1,0 +1,148 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Auburn House - Home Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            screens: {
+              'xs': '400px',
+              'xxs': '350px',
+            },
+            colors: {
+              primary: 'var(--color-primary)',
+              'primary-hover': 'var(--color-primary-hover)',
+              'primary-soft': 'var(--color-primary-soft)',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+        :root {
+          --color-primary: #4f46e5;
+          --color-primary-hover: #4338ca;
+          --color-primary-soft: #eef2ff;
+          --bg-main: #f8fafc;
+        }
+
+        [data-theme='nature'] {
+          --color-primary: #059669;
+          --color-primary-hover: #047857;
+          --color-primary-soft: #ecfdf5;
+          --bg-main: #f0fdf4;
+        }
+
+        [data-theme='sunset'] {
+          --color-primary: #e11d48;
+          --color-primary-hover: #be123c;
+          --color-primary-soft: #fff1f2;
+          --bg-main: #fffafb;
+        }
+
+        [data-theme='dark'], .dark {
+          --color-primary: #818cf8;
+          --color-primary-hover: #6366f1;
+          --color-primary-soft: #1e1b4b;
+          --bg-main: #020617;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            overflow-x: hidden; 
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            background-color: var(--bg-main);
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+        }
+        .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.3);
+        }
+        .dark .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+        
+        * {
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .theme-transition {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes gradient-move {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
+        .animate-gradient {
+          background-size: 200% 200%;
+          animation: gradient-move 5s ease infinite;
+        }
+
+        /* CUSTOM DATE PICKER STYLING */
+        .calendar-picker-custom::-webkit-calendar-picker-indicator {
+          background: transparent;
+          bottom: 0;
+          color: transparent;
+          cursor: pointer;
+          height: auto;
+          left: 0;
+          position: absolute;
+          right: 0;
+          top: 0;
+          width: auto;
+        }
+
+        .calendar-picker-custom {
+          position: relative;
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "date-fns": "https://esm.sh/date-fns@^4.1.0",
+    "three": "https://esm.sh/three@^0.182.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.570.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.42.0",
+    "localforage": "https://esm.sh/localforage@^1.10.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+    <div id="root"></div>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>

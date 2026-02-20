@@ -1,0 +1,7 @@
+{
+  "name": "Auburn House",
+  "description": "A comprehensive house management app for tracking cleaning schedules, rent, bills, common expenses, and member advances with a modern UI and persistent local storage.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
