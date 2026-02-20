@@ -4,8 +4,18 @@ import fs from 'fs';
 import path from 'path';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+
 const PORT = 3000;
 const DB_FILE = path.join(process.cwd(), 'db.json');
 
@@ -17,7 +27,11 @@ const readDB = () => {
   if (!fs.existsSync(DB_FILE)) {
     return null;
   }
-  return JSON.parse(fs.readFileSync(DB_FILE, 'utf-8'));
+  try {
+    return JSON.parse(fs.readFileSync(DB_FILE, 'utf-8'));
+  } catch (e) {
+    return null;
+  }
 };
 
 const writeDB = (data: any) => {
@@ -32,6 +46,8 @@ app.get('/api/state', (req, res) => {
 
 app.post('/api/state', (req, res) => {
   writeDB(req.body);
+  // Broadcast to all clients except sender
+  io.emit('state_updated', req.body);
   res.json({ success: true });
 });
 
@@ -39,7 +55,22 @@ app.post('/api/clear', (req, res) => {
   if (fs.existsSync(DB_FILE)) {
     fs.unlinkSync(DB_FILE);
   }
+  io.emit('state_cleared');
   res.json({ success: true });
+});
+
+// Socket.io connection handling
+io.on('connection', (socket) => {
+  console.log('A user connected:', socket.id);
+  
+  socket.on('update_state', (newState) => {
+    writeDB(newState);
+    socket.broadcast.emit('state_updated', newState);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
 });
 
 async function startServer() {
@@ -56,7 +87,7 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  httpServer.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
 }

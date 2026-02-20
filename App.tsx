@@ -1,5 +1,6 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { io } from 'socket.io-client';
 import { 
   format, 
   isWednesday,
@@ -188,6 +189,30 @@ const App: React.FC = () => {
   const [isThemeSelectorOpen, setIsThemeSelectorOpen] = useState(false);
   
   const [state, setState] = useState<AppState>(getInitialState());
+  const socketRef = useRef<any>(null);
+  const isRemoteUpdateRef = useRef(false);
+
+  useEffect(() => {
+    socketRef.current = io();
+
+    socketRef.current.on('state_updated', (newState: AppState) => {
+      isRemoteUpdateRef.current = true;
+      setState(newState);
+      setTimeout(() => {
+        isRemoteUpdateRef.current = false;
+      }, 500);
+    });
+
+    socketRef.current.on('state_cleared', () => {
+      window.location.reload();
+    });
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const initApp = async () => {
@@ -204,7 +229,7 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!isDatabaseLoaded) return;
+    if (!isDatabaseLoaded || isRemoteUpdateRef.current) return;
     const syncToDb = async () => {
       setIsSyncing(true);
       await database.save(state);
