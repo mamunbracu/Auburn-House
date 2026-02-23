@@ -143,6 +143,7 @@ export interface AppState {
     cleaningStartDate: string;
     grassStartDate: string;
     theme?: AppTheme;
+    geminiKey?: string;
   };
 }
 

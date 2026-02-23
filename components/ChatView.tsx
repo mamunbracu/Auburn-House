@@ -113,9 +113,9 @@ const ChatView: React.FC<ChatViewProps> = ({ state, onUpdateHistory }) => {
     setIsLoading(true);
 
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey || apiKey === 'undefined') {
-        throw new Error('GEMINI_API_KEY is missing. Please set it in your environment variables.');
+      const apiKey = state.settings.geminiKey || process.env.GEMINI_API_KEY;
+      if (!apiKey || apiKey === 'undefined' || apiKey === '') {
+        throw new Error('GEMINI_API_KEY is missing. Please set it in App Settings or environment variables.');
       }
 
       const ai = new GoogleGenAI({ apiKey });
@@ -153,7 +153,7 @@ const ChatView: React.FC<ChatViewProps> = ({ state, onUpdateHistory }) => {
       const errorMessage: ChatMessage = {
         role: 'model',
         text: isAuthError 
-          ? "My brain is locked! The GEMINI_API_KEY seems to be missing or invalid in the house settings (Vercel env vars)."
+          ? "My brain is locked! The GEMINI_API_KEY seems to be missing or invalid. Please check the 'App Settings' tab or house environment variables."
           : "My connection to the house grid is flickering. Try again in a second!",
         timestamp: new Date().toISOString()
       };

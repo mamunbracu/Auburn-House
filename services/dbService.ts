@@ -79,12 +79,20 @@ export const getInitialState = (): AppState => {
     grassCutting: [],
     notificationSettings: { enabled: false, rentReminders: true, cleaningReminders: true, binReminders: true, lastCheckedDate: null },
     instructions: DEFAULT_INSTRUCTIONS,
-    settings: { bgAnimation: true, cleaningStartDate: '2026-02-17', grassStartDate: '2026-02-15', theme: 'default' }
+    settings: { bgAnimation: true, cleaningStartDate: '2026-02-17', grassStartDate: '2026-02-15', theme: 'default', geminiKey: 'AIzaSyAbgylZSQkteu9QG3-sXOjYftpvinNeqEc' }
   };
 };
 
+import { supabaseService } from './supabaseService';
+
 export const database = {
   load: async (): Promise<AppState> => {
+    // Try Supabase first (for Vercel/Production)
+    if (supabaseService.isEnabled()) {
+      const cloudState = await supabaseService.loadState();
+      if (cloudState) return cloudState;
+    }
+
     try {
       const response = await fetch('/api/state');
       if (!response.ok) throw new Error('Failed to fetch state');
@@ -99,6 +107,11 @@ export const database = {
     }
   },
   save: async (state: AppState): Promise<void> => {
+    // Save to Supabase (Real-time)
+    if (supabaseService.isEnabled()) {
+      await supabaseService.saveState(state);
+    }
+
     try {
       await fetch('/api/state', {
         method: 'POST',
@@ -110,6 +123,10 @@ export const database = {
     }
   },
   clear: async (): Promise<void> => {
+    if (supabaseService.isEnabled()) {
+      await supabaseService.clearState();
+    }
+
     try {
       await fetch('/api/clear', { method: 'POST' });
       window.location.reload();

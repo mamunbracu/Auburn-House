@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { io } from 'socket.io-client';
+import { supabaseService } from './services/supabaseService';
 import { 
   format, 
   isWednesday,
@@ -82,6 +83,16 @@ const DashboardSummary: React.FC<{ state: AppState; onNavigate: (view: ViewType)
 
   return (
     <div className="space-y-6 pb-12">
+      <div className="flex justify-between items-center px-4">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 italic">Live House Grid Active</span>
+        </div>
+        <div className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 italic">
+          {format(today, 'EEEE, MMMM do')}
+        </div>
+      </div>
+
       {noticeToDismiss && (
         <PinModal 
           onSuccess={() => { onDismissNotice(noticeToDismiss); setNoticeToDismiss(null); }}
@@ -193,6 +204,7 @@ const App: React.FC = () => {
   const isRemoteUpdateRef = useRef(false);
 
   useEffect(() => {
+    // Socket.io for local dev
     socketRef.current = io();
 
     socketRef.current.on('state_updated', (newState: AppState) => {
@@ -207,16 +219,38 @@ const App: React.FC = () => {
       window.location.reload();
     });
 
+    // Supabase for Production (Vercel)
+    const unsubscribeSupabase = supabaseService.subscribe((newState) => {
+      isRemoteUpdateRef.current = true;
+      setState(newState);
+      setTimeout(() => {
+        isRemoteUpdateRef.current = false;
+      }, 500);
+    });
+
     return () => {
       if (socketRef.current) {
         socketRef.current.disconnect();
       }
+      unsubscribeSupabase();
     };
   }, []);
 
   useEffect(() => {
     const initApp = async () => {
-      const savedState = await database.load();
+      let savedState = await database.load();
+      
+      // Auto-apply the provided key if missing
+      if (!savedState.settings.geminiKey) {
+        savedState = {
+          ...savedState,
+          settings: {
+            ...savedState.settings,
+            geminiKey: 'AIzaSyAbgylZSQkteu9QG3-sXOjYftpvinNeqEc'
+          }
+        };
+      }
+
       setState(savedState);
       const root = window.document.documentElement;
       const theme = savedState.settings.theme || 'default';
@@ -540,7 +574,7 @@ const App: React.FC = () => {
             {activeView === 'instruction' && <InstructionView state={state} onUpdateInstructions={(inst) => setState(p => ({ ...p, instructions: inst }))} />}
             {activeView === 'data' && <DataView state={state} />}
             {activeView === 'advance' && <AdvanceView roommates={state.members} advanceData={state.advanceData.memberDetails} onUpdateAdvance={(n, d) => setState(p => ({ ...p, advanceData: { ...p.advanceData, memberDetails: { ...p.advanceData.memberDetails, [n]: d } } }))} onImageClick={(src) => setPopupImage(src)} />}
-            {activeView === 'settings' && <SettingsView state={state} onToggleTheme={toggleTheme} />}
+            {activeView === 'settings' && <SettingsView state={state} onToggleTheme={toggleTheme} onUpdateSettings={(s) => setState(p => ({ ...p, settings: { ...p.settings, ...s } }))} />}
             
             {activeView === 'profile' && selectedMember && (
               <div className="space-y-8 pb-32 animate-in slide-in-from-right-10 duration-500">
@@ -609,13 +643,49 @@ const ProfileField = ({ label, value, icon, isEditing, onChange, type = "text" }
   );
 };
 
-const SettingsView = ({ state, onToggleTheme }: { state: AppState, onToggleTheme: (t: AppTheme) => void }) => {
+const SettingsView = ({ state, onToggleTheme, onUpdateSettings }: { state: AppState, onToggleTheme: (t: AppTheme) => void, onUpdateSettings: (s: any) => void }) => {
   return (
     <div className="space-y-12 pb-32 animate-in fade-in duration-500">
       <header>
         <h2 className="text-3xl font-black text-slate-800 dark:text-white uppercase tracking-tighter italic leading-none">App Preferences</h2>
         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Personalize your Auburn Hub Experience</p>
       </header>
+
+      {/* AI CONFIGURATION */}
+      <section className="space-y-6">
+        <div className="flex items-center gap-3 px-2">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary"><Bot size={18} /></div>
+          <h3 className="text-lg font-black text-slate-800 dark:text-white uppercase italic tracking-tight">AI Brain (Ask Mamun)</h3>
+        </div>
+        <div className="bg-white dark:bg-slate-900 p-8 rounded-[3rem] border border-slate-100 dark:border-slate-800 shadow-sm space-y-4">
+          <div className="space-y-2">
+            <div className="flex justify-between items-center px-1">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Gemini API Key</label>
+              {state.settings.geminiKey && (
+                <span className="text-[8px] font-black bg-emerald-500/10 text-emerald-500 px-2 py-0.5 rounded-full uppercase tracking-widest flex items-center gap-1">
+                  <ShieldCheck size={10} /> Secured & Active
+                </span>
+              )}
+            </div>
+            <div className="relative">
+              <input 
+                type="password" 
+                value={state.settings.geminiKey || ''} 
+                onChange={(e) => onUpdateSettings({ geminiKey: e.target.value })}
+                placeholder="AIzaSy..."
+                disabled={!!state.settings.geminiKey}
+                className={`w-full bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 focus:border-primary transition-all rounded-2xl px-6 py-4 text-sm font-black outline-none dark:text-white italic ${state.settings.geminiKey ? 'opacity-50 cursor-not-allowed' : ''}`}
+              />
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300">
+                <ShieldCheck size={20} />
+              </div>
+            </div>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-2 px-1 italic">
+              * This key is saved to Supabase and shared with all house members.
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* THEME SELECTION */}
       <section className="space-y-6">
