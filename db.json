@@ -93,7 +93,6 @@
   ],
   "settings": {
     "theme": "default",
-    "geminiKey": "AIzaSyAbgylZSQkteu9QG3-sXOjYftpvinNeqEc",
     "bgAnimation": true,
     "grassStartDate": "2026-02-15",
     "cleaningStartDate": "2026-02-17"
@@ -234,7 +233,33 @@
       }
     }
   },
-  "chatHistory": [],
+  "chatHistory": [
+    {
+      "role": "user",
+      "text": "WiFi password?",
+      "timestamp": "2026-02-24T00:31:54.130Z"
+    },
+    {
+      "role": "user",
+      "text": "HI",
+      "timestamp": "2026-02-24T00:32:05.066Z"
+    },
+    {
+      "role": "model",
+      "text": "My brain is locked! The GEMINI_API_KEY seems to be missing or invalid. Please check the 'App Settings' tab or house environment variables.",
+      "timestamp": "2026-02-24T00:32:05.248Z"
+    },
+    {
+      "role": "user",
+      "text": "HI",
+      "timestamp": "2026-02-24T01:19:00.690Z"
+    },
+    {
+      "role": "model",
+      "text": "My brain is locked! The GEMINI_API_KEY seems to be missing or invalid. Please check the 'App Settings' tab or house environment variables.",
+      "timestamp": "2026-02-24T01:19:01.399Z"
+    }
+  ],
   "billPayments": [],
   "grassCutting": [],
   "instructions": [
@@ -258,31 +283,23 @@
     {
       "id": "2",
       "color": "amber",
-      "emoji": "🧹",
-      "description": "Maintain the heart of the home! Please follow these guidelines to keep our kitchen pristine:",
+      "emoji": "🍳",
       "rules": [
         {
-          "text": "Surfaces: Wipe down all kitchen benches and the sink until sparkling."
+          "text": "Do not place any cookware or cooking items on the kitchen bench."
         },
         {
-          "text": "Cooking Area: Thoroughly clean the gas stove, burners, and oven."
+          "text": "After cooking, clean the oven and stove burners thoroughly."
         },
         {
-          "text": "Floors: Sweep away debris followed by a fresh mop."
+          "text": "Wash, dry, and return all utensils and items to the cabinet after use."
         },
         {
-          "text": "Waste: Empty the bin and replace the liner."
-        },
-        {
-          "text": "Self-Initiative: If you spot something else that needs attention, feel free to take the lead! 😁"
-        },
-        {
-          "text": "All cookware, utensils, and surfaces used must be thoroughly cleaned and stowed immediately after use—no exceptions.",
-          "highlight": true,
-          "warning": true
+          "text": "Keep the kitchen tidy at all times.",
+          "highlight": true
         }
       ],
-      "title": "Kitchen Care & Maintenance"
+      "title": "Kitchen Etiquette"
     },
     {
       "id": "3",

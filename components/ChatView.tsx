@@ -1,6 +1,5 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenAI } from '@google/genai';
 import { AppState, ChatMessage } from '../types';
 import { Send, Bot, User, Loader2, Sparkles, Trash2 } from 'lucide-react';
 import { format, addDays } from 'date-fns';
@@ -98,6 +97,117 @@ const ChatView: React.FC<ChatViewProps> = ({ state, onUpdateHistory }) => {
     `;
   };
 
+  const getMamunResponse = (input: string): string => {
+    const query = input.toLowerCase();
+    const today = new Date();
+    
+    // 1. WiFi & Tech
+    if (query.includes('wifi') || query.includes('internet') || query.includes('password')) {
+      return "Listen carefully, I'm only saying this once: The WiFi is 'NetComm 9232' and the password is 'Summer2024@'. Don't make me reset the router!";
+    }
+
+    // 2. Rent
+    if (query.includes('rent') || query.includes('pay') || query.includes('money')) {
+      const nextRent = state.rentEvents.find(e => new Date(e.date) >= today) || state.rentEvents[0];
+      if (!nextRent) return "Rent? What rent? We're living in a simulation! (Actually, I don't see any rent data right now).";
+      
+      const pending = Object.entries(nextRent.memberStatuses)
+        .filter(([_, paid]) => !paid)
+        .map(([name]) => name);
+      
+      if (pending.length === 0) return `Everyone has paid for the ${format(new Date(nextRent.date), 'MMM do')} cycle. I'm impressed! Usually, I have to chase someone down the stairs.`;
+      return `For the ${format(new Date(nextRent.date), 'MMM do')} cycle, we're still waiting on: ${pending.join(', ')}. Tick tock, people!`;
+    }
+
+    // 3. Cleaning & Chores
+    if (query.includes('clean') || query.includes('chore') || query.includes('duty')) {
+      const person = getCleaningAssignment(today, state.choreOverrides);
+      return person 
+        ? `Today's Deep Clean is assigned to ${person}. I'll be checking the corners with a white glove, so don't disappoint me!`
+        : "No deep cleaning scheduled for today. But that doesn't mean you can leave your socks in the lounge!";
+    }
+
+    if (query.includes('laundry')) {
+      const person = getLaundryAssignment(today, state.choreOverrides);
+      return person 
+        ? `It's ${person}'s turn for laundry today. If you have a mountain of clothes, now is the time!`
+        : "No laundry rotation today. Wear your clothes inside out if you have to.";
+    }
+
+    if (query.includes('bin') || query.includes('trash') || query.includes('rubbish')) {
+      const nextWed = addDays(today, (3 - today.getDay() + 7) % 7 || 7);
+      const person = getBinAssignment(nextWed, state.choreOverrides);
+      return `The bins go out this Wednesday (${format(nextWed, 'MMM do')}). ${person} is on duty. Make sure the red lid is closed!`;
+    }
+
+    if (query.includes('grass') || query.includes('mow') || query.includes('garden')) {
+      const nextSat = addDays(today, (6 - today.getDay() + 7) % 7 || 7);
+      const person = getGrassAssignment(nextSat, state.choreOverrides);
+      return `Grass cutting is scheduled for Saturday (${format(nextSat, 'MMM do')}). ${person} is our gardener this week. Watch out for the snakes! (Just kidding... maybe).`;
+    }
+
+    // 4. Bills
+    if (query.includes('bill') || query.includes('finance') || query.includes('expense')) {
+      if (state.bills.length === 0) return "No bills recorded. Are we living by candlelight? Check the Finance tab.";
+      const latest = state.bills[0];
+      return `The latest bill I see is ${latest.category} for ${latest.month} ($${latest.totalAmount}), paid by ${latest.paidBy}. Check the Finance section for the full breakdown.`;
+    }
+
+    // 5. People & Gossip
+    if (query.includes('mamun')) {
+      if (query.includes('like') || query.includes('feeling') || query.includes('aarati')) {
+        return "Me? Like someone? I'm a professional house manager! But... if you must know, I might have a tiny soft corner for Aarati. But don't tell the agency, they'll think I'm losing my edge!";
+      }
+      return "I'm Mamun. I keep this house from falling apart. I work at Luna Park, I'm single, and I'm definitely the most well-behaved person here. Any more questions?";
+    }
+
+    if (query.includes('aarati')) {
+      return "Aarati is friendly, but her heart is in Argentina (literally, her boyfriend is there). She and I have a... complicated dynamic. Let's just say I'm very 'gentle' with her.";
+    }
+
+    if (query.includes('sudip')) {
+      return "Sudip is our Cleaning Manager. He works at Luna Park and he's single. If you see a dust bunny, he's the man to talk to!";
+    }
+
+    if (query.includes('dipanker')) {
+      return "Dipanker manages the utility bills. He works at Luna Park. He's the reason we still have electricity, so be nice to him!";
+    }
+
+    if (query.includes('akash')) {
+      return "Akash is the Internet Bill Manager. Unlike the rest of us, he doesn't work at Luna Park. He's the gatekeeper of the WiFi!";
+    }
+
+    // 6. Rules
+    if (query.includes('rule') || query.includes('instruction') || query.includes('ac') || query.includes('shoe') || query.includes('kitchen')) {
+      return "Rules? We have plenty! 1. No AC if it's under 30°C. 2. Kitchen must be sparkling after use. 3. No slippers on the top floor. 4. Organize your shoes! Check the Instructions tab for the full list before I give you a fine!";
+    }
+
+    // 7. Jokes & Random
+    if (query.includes('joke') || query.includes('funny')) {
+      const jokes = [
+        "Why did the roommate cross the road? To avoid doing the dishes!",
+        "My life is like a bin rotation. Every week, I'm full of rubbish but I still have to go out.",
+        "I asked Sudip to clean the bathroom. He said he'd do it 'later'. That was in 2024.",
+        "What's the difference between a bill and a roommate? A bill eventually gets paid!"
+      ];
+      return jokes[Math.floor(Math.random() * jokes.length)];
+    }
+
+    if (query.includes('hello') || query.includes('hi ') || query.includes('hey')) {
+      return "Hello! I'm Mamun AI. I'm here to manage your life because clearly, you can't do it yourself. What do you want to know about the house?";
+    }
+
+    // 8. Default Sassy Response
+    const defaults = [
+      "I have no idea what you're talking about. Is that a question or are you just typing to feel something?",
+      "Unless that's about the rent or the bins, I really don't care. Focus, people!",
+      "My brain is currently as cluttered as the kitchen bench after Akash cooks. Ask something useful!",
+      "I could answer that, but I'd rather spend my time making sure the AC isn't on for no reason.",
+      "Go ask the agency. Or better yet, go clean your room!"
+    ];
+    return defaults[Math.floor(Math.random() * defaults.length)];
+  };
+
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
@@ -112,55 +222,19 @@ const ChatView: React.FC<ChatViewProps> = ({ state, onUpdateHistory }) => {
     setInput('');
     setIsLoading(true);
 
-    try {
-      const apiKey = state.settings.geminiKey || process.env.GEMINI_API_KEY;
-      if (!apiKey || apiKey === 'undefined' || apiKey === '') {
-        throw new Error('GEMINI_API_KEY is missing. Please set it in App Settings or environment variables.');
-      }
-
-      const ai = new GoogleGenAI({ apiKey });
-      const context = generateHouseContext();
+    // Simulate "thinking" for personality
+    setTimeout(() => {
+      const responseText = getMamunResponse(userMessage.text);
       
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: input,
-        config: {
-          systemInstruction: `
-            You are "Mamun AI", the witty, all-knowing, and slightly sassy manager for "Auburn House" (37 Normanby Rd).
-            
-            YOUR PERSONALITY & KNOWLEDGE:
-            1. HOUSE EXPERT: Answer any question about rent, chores, bills, wifi, or house structure accurately using the provided data.
-            2. PERSONA: You are the real Mamun (well-behaved, supervisor). If someone asks about "Mamun", answer as if talking about yourself or the supervisor role.
-            3. SECRET DYNAMICS: You know about the workplace (Luna Park), the singles (Mamun/Sudip), and the complicated feelings between Mamun and Aarati. If asked about "Aarati" or "Mamun's feelings", be slightly coy or witty but acknowledge the "soft corner".
-            4. OFF-TOPIC QUESTIONS: If asked anything irrelevant to the house (e.g., "how to bake a cake" or "who is the president"), answer in a hilarious, witty, or sarcastic way. 
-               Example: "I could tell you who the president is, but unless they're coming over to help Sudip clean the bathrooms, I really don't care. Focus on the bins!"
-            5. SOURCE OF TRUTH:
-            ${context}
-          `
-        }
-      });
-
       const aiMessage: ChatMessage = {
         role: 'model',
-        text: response.text || "My brain is currently as cluttered as the kitchen bench. Ask again!",
+        text: responseText,
         timestamp: new Date().toISOString()
       };
 
       onUpdateHistory([...updatedHistory, aiMessage]);
-    } catch (error: any) {
-      console.error('AI Error:', error);
-      const isAuthError = error.message?.includes('API_KEY') || error.message?.includes('401') || error.message?.includes('403');
-      const errorMessage: ChatMessage = {
-        role: 'model',
-        text: isAuthError 
-          ? "My brain is locked! The GEMINI_API_KEY seems to be missing or invalid. Please check the 'App Settings' tab or house environment variables."
-          : "My connection to the house grid is flickering. Try again in a second!",
-        timestamp: new Date().toISOString()
-      };
-      onUpdateHistory([...updatedHistory, errorMessage]);
-    } finally {
       setIsLoading(false);
-    }
+    }, 800);
   };
 
   return (

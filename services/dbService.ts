@@ -82,7 +82,7 @@ export const getInitialState = (): AppState => {
     grassCutting: [],
     notificationSettings: { enabled: false, rentReminders: true, cleaningReminders: true, binReminders: true, lastCheckedDate: null },
     instructions: DEFAULT_INSTRUCTIONS,
-    settings: { bgAnimation: true, cleaningStartDate: '2026-02-17', grassStartDate: '2026-02-15', theme: 'default', geminiKey: 'AIzaSyAbgylZSQkteu9QG3-sXOjYftpvinNeqEc' }
+    settings: { bgAnimation: true, cleaningStartDate: '2026-02-17', grassStartDate: '2026-02-15', theme: 'default' }
   };
 };
 
