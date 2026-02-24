@@ -6,6 +6,7 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import { createClient } from '@supabase/supabase-js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -17,43 +18,70 @@ const io = new Server(httpServer, {
 });
 
 const PORT = 3000;
-const DB_FILE = path.join(process.cwd(), 'db.json');
+
+// Supabase Setup
+const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+const TABLE_NAME = 'house_data';
+const ROW_ID = 'auburn_house_v1';
 
 app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
 
-// Helper to read/write DB
-const readDB = () => {
-  if (!fs.existsSync(DB_FILE)) {
-    return null;
-  }
+// Helper to read/write Supabase
+const readDB = async () => {
+  if (!supabaseUrl || !supabaseKey) return null;
   try {
-    return JSON.parse(fs.readFileSync(DB_FILE, 'utf-8'));
+    const { data, error } = await supabase
+      .from(TABLE_NAME)
+      .select('state')
+      .eq('id', ROW_ID)
+      .single();
+    
+    if (error) {
+      console.error('Supabase read error:', error);
+      return null;
+    }
+    return data?.state;
   } catch (e) {
+    console.error('Supabase catch error:', e);
     return null;
   }
 };
 
-const writeDB = (data: any) => {
-  fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
+const writeDB = async (data: any) => {
+  if (!supabaseUrl || !supabaseKey) return;
+  try {
+    const { error } = await supabase
+      .from(TABLE_NAME)
+      .upsert({ id: ROW_ID, state: data, updated_at: new Date().toISOString() });
+    
+    if (error) {
+      console.error('Supabase write error:', error);
+    }
+  } catch (e) {
+    console.error('Supabase write catch error:', e);
+  }
 };
 
 // API Routes
-app.get('/api/state', (req, res) => {
-  const data = readDB();
+app.get('/api/state', async (req, res) => {
+  const data = await readDB();
   res.json(data);
 });
 
-app.post('/api/state', (req, res) => {
-  writeDB(req.body);
+app.post('/api/state', async (req, res) => {
+  await writeDB(req.body);
   // Broadcast to all clients except sender
   io.emit('state_updated', req.body);
   res.json({ success: true });
 });
 
-app.post('/api/clear', (req, res) => {
-  if (fs.existsSync(DB_FILE)) {
-    fs.unlinkSync(DB_FILE);
+app.post('/api/clear', async (req, res) => {
+  if (supabaseUrl && supabaseKey) {
+    await supabase.from(TABLE_NAME).delete().eq('id', ROW_ID);
   }
   io.emit('state_cleared');
   res.json({ success: true });
@@ -63,9 +91,9 @@ app.post('/api/clear', (req, res) => {
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
   
-  socket.on('update_state', (newState) => {
+  socket.on('update_state', async (newState) => {
     console.log('Received update_state from client:', socket.id);
-    writeDB(newState);
+    await writeDB(newState);
     // Broadcast to all OTHER clients
     socket.broadcast.emit('state_updated', newState);
   });

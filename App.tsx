@@ -311,7 +311,7 @@ const DashboardSummary: React.FC<{ state: AppState; onNavigate: (view: ViewType)
             </div>
           </div>
           <div className="flex flex-col items-center sm:items-end">
-            <p className="text-3xl sm:text-5xl lg:text-6xl font-black uppercase italic tracking-tighter text-white drop-shadow-2xl leading-none">
+            <p className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black uppercase italic tracking-tighter text-white drop-shadow-2xl leading-none">
               SEND MONEY TO MAMUN
             </p>
             <p className="text-[10px] font-bold text-rose-100 uppercase tracking-[0.2em] mt-3 flex items-center gap-2">
@@ -822,7 +822,7 @@ const App: React.FC = () => {
         </div>
       </nav>
 
-      <main className={`flex-grow md:ml-64 w-full relative transition-all ${isFullScreenView ? 'p-0 max-w-none' : 'p-4 sm:p-6 md:p-12 pt-[env(safe-area-inset-top)] sm:pt-6 md:pt-12 max-w-7xl mx-auto'}`}>
+      <main className={`flex-grow md:ml-64 relative transition-all ${isFullScreenView ? 'p-0 max-w-none' : 'p-4 sm:p-6 md:p-12 pt-[env(safe-area-inset-top)] sm:pt-6 md:pt-12 max-w-7xl mx-auto'}`}>
         {!isFullScreenView && (
           <div className="flex justify-between items-center mb-6 min-h-[64px] md:min-h-[48px]">
              <button 

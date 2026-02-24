@@ -9,7 +9,7 @@ export const supabase = (supabaseUrl && supabaseKey)
   ? createClient(supabaseUrl, supabaseKey)
   : null;
 
-const TABLE_NAME = 'house_state';
+const TABLE_NAME = 'house_data';
 const ROW_ID = 'auburn_house_v1';
 
 export const supabaseService = {
