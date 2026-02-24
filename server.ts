@@ -22,7 +22,7 @@ const PORT = 3000;
 // Supabase Setup
 const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
 
 const TABLE_NAME = 'house_data';
 const ROW_ID = 'auburn_house_v1';
@@ -32,7 +32,7 @@ app.use(bodyParser.json({ limit: '50mb' }));
 
 // Helper to read/write Supabase
 const readDB = async () => {
-  if (!supabaseUrl || !supabaseKey) return null;
+  if (!supabase || !supabaseUrl || !supabaseKey) return null;
   try {
     const { data, error } = await supabase
       .from(TABLE_NAME)
@@ -52,7 +52,7 @@ const readDB = async () => {
 };
 
 const writeDB = async (data: any) => {
-  if (!supabaseUrl || !supabaseKey) return;
+  if (!supabase || !supabaseUrl || !supabaseKey) return;
   try {
     const { error } = await supabase
       .from(TABLE_NAME)

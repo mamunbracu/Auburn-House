@@ -1027,7 +1027,7 @@ const SettingsView = ({ state, onToggleTheme, onUpdateSettings, onOpenKnowledgeE
               </p>
               <pre className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-[9px] font-mono text-slate-600 dark:text-slate-300 overflow-x-auto border border-slate-100 dark:border-slate-700">
 {`-- 1. Create the table
-CREATE TABLE IF NOT EXISTS house_state (
+CREATE TABLE IF NOT EXISTS house_data (
   id TEXT PRIMARY KEY,
   state JSONB,
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -1039,9 +1039,9 @@ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_publication_tables 
     WHERE pubname = 'supabase_realtime' 
-    AND tablename = 'house_state'
+    AND tablename = 'house_data'
   ) THEN
-    ALTER PUBLICATION supabase_realtime ADD TABLE house_state;
+    ALTER PUBLICATION supabase_realtime ADD TABLE house_data;
   END IF;
 END $$;`}
               </pre>

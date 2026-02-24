@@ -59,7 +59,7 @@ export const supabaseService = {
     if (!supabase) return () => {};
 
     const channel = supabase
-      .channel('public:house_state')
+      .channel(`public:${TABLE_NAME}`)
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: TABLE_NAME, filter: `id=eq.${ROW_ID}` },

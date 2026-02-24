@@ -92,14 +92,24 @@ import { supabaseService } from './supabaseService';
 
 export const database = {
   load: async (): Promise<AppState> => {
-    // Try Supabase first (for Vercel/Production)
-    if (supabaseService.isEnabled()) {
-      const cloudState = await supabaseService.loadState();
-      if (cloudState) return cloudState;
-    }
-
     try {
-      const response = await fetch('/api/state');
+      // Try Supabase first (for Vercel/Production)
+      if (supabaseService.isEnabled()) {
+        try {
+          const cloudState = await supabaseService.loadState();
+          if (cloudState) return cloudState;
+        } catch (err) {
+          console.error('Supabase: Load failed, falling back to local API', err);
+        }
+      }
+
+      // Fallback to local API
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+
+      const response = await fetch('/api/state', { signal: controller.signal });
+      clearTimeout(timeoutId);
+
       if (!response.ok) throw new Error('Failed to fetch state');
       const data = await response.json();
       if (data) {
@@ -107,7 +117,7 @@ export const database = {
       }
       return getInitialState();
     } catch (error) {
-      console.error('Database: Load failed', error);
+      console.error('Database: Load failed completely', error);
       return getInitialState();
     }
   },
