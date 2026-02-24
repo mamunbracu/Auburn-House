@@ -402,7 +402,7 @@ const App: React.FC = () => {
       
       setState(savedState);
       const root = window.document.documentElement;
-      const theme = savedState.settings.theme || 'default';
+      const theme = savedState.settings?.theme || 'default';
       root.setAttribute('data-theme', theme);
       if (theme === 'dark') root.classList.add('dark');
       else root.classList.remove('dark');
@@ -427,7 +427,7 @@ const App: React.FC = () => {
   }, [state, isDatabaseLoaded]);
 
   const toggleTheme = (theme: AppTheme) => {
-    setState(prev => ({ ...prev, settings: { ...prev.settings, theme } }));
+    setState(prev => ({ ...prev, settings: { ...(prev.settings || {}), theme } as any }));
     const root = window.document.documentElement;
     root.setAttribute('data-theme', theme);
     if (theme === 'dark') root.classList.add('dark');
@@ -638,12 +638,18 @@ const App: React.FC = () => {
   };
 
   const handleUpdateAdvance = (name: string, details: MemberAdvanceDetails) => {
-    setState(p => ({ ...p, advanceData: { ...p.advanceData, memberDetails: { ...p.advanceData.memberDetails, [name]: details } } }));
+    setState(p => ({ 
+      ...p, 
+      advanceData: { 
+        ...(p.advanceData || {}), 
+        memberDetails: { ...((p.advanceData?.memberDetails) || {}), [name]: details } 
+      } 
+    }));
     toast.success(`Advance details for ${name} updated.`);
   };
 
   const handleUpdateSettings = (s: any) => {
-    setState(p => ({ ...p, settings: { ...p.settings, ...s } }));
+    setState(p => ({ ...p, settings: { ...(p.settings || {}), ...s } }));
     toast.success('Settings updated.');
   };
 
@@ -720,7 +726,7 @@ const App: React.FC = () => {
                 <button 
                   key={t.id} 
                   onClick={() => { toggleTheme(t.id); setIsThemeSelectorOpen(false); }}
-                  className={`p-4 rounded-2xl border-2 transition-all text-left flex items-center gap-4 group ${state.settings.theme === t.id ? 'bg-primary/5 border-primary shadow-sm' : 'bg-slate-50 dark:bg-slate-800/50 border-transparent hover:border-slate-200 dark:hover:border-slate-700'}`}
+                  className={`p-4 rounded-2xl border-2 transition-all text-left flex items-center gap-4 group ${state.settings?.theme === t.id ? 'bg-primary/5 border-primary shadow-sm' : 'bg-slate-50 dark:bg-slate-800/50 border-transparent hover:border-slate-200 dark:hover:border-slate-700'}`}
                 >
                   <div className={`w-10 h-10 rounded-xl ${t.color} text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
                     <t.icon size={18} />
@@ -729,7 +735,7 @@ const App: React.FC = () => {
                     <p className="text-sm font-black text-slate-800 dark:text-white uppercase italic leading-none">{t.label}</p>
                     <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">{t.desc}</p>
                   </div>
-                  {state.settings.theme === t.id && (
+                  {state.settings?.theme === t.id && (
                     <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                   )}
                 </button>
@@ -1061,7 +1067,7 @@ END $$;`}
             <button 
               key={t.id} 
               onClick={() => onToggleTheme(t.id)}
-              className={`p-6 rounded-[2.5rem] border-4 transition-all text-left flex flex-col items-start gap-4 relative overflow-hidden group ${state.settings.theme === t.id ? 'bg-white dark:bg-slate-900 border-primary shadow-xl' : 'bg-slate-50/50 dark:bg-slate-800/30 border-transparent hover:bg-white dark:hover:bg-slate-800'}`}
+              className={`p-6 rounded-[2.5rem] border-4 transition-all text-left flex flex-col items-start gap-4 relative overflow-hidden group ${state.settings?.theme === t.id ? 'bg-white dark:bg-slate-900 border-primary shadow-xl' : 'bg-slate-50/50 dark:bg-slate-800/30 border-transparent hover:bg-white dark:hover:bg-slate-800'}`}
             >
               <div className={`w-12 h-12 rounded-2xl ${t.color} text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
                 <t.icon size={20} />
@@ -1070,7 +1076,7 @@ END $$;`}
                 <p className="text-sm font-black text-slate-800 dark:text-white uppercase italic leading-none">{t.label}</p>
                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">{t.desc}</p>
               </div>
-              {state.settings.theme === t.id && (
+              {state.settings?.theme === t.id && (
                 <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-primary animate-pulse" />
               )}
             </button>

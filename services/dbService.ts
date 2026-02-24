@@ -88,6 +88,24 @@ export const getInitialState = (): AppState => {
   };
 };
 
+const sanitizeState = (data: any): AppState => {
+  const initialState = getInitialState();
+  if (!data) return initialState;
+  
+  return {
+    ...initialState,
+    ...data,
+    settings: {
+      ...initialState.settings,
+      ...(data.settings || {})
+    },
+    advanceData: {
+      ...initialState.advanceData,
+      ...(data.advanceData || {})
+    }
+  };
+};
+
 import { supabaseService } from './supabaseService';
 
 export const database = {
@@ -97,7 +115,7 @@ export const database = {
       if (supabaseService.isEnabled()) {
         try {
           const cloudState = await supabaseService.loadState();
-          if (cloudState) return cloudState;
+          if (cloudState) return sanitizeState(cloudState);
         } catch (err) {
           console.error('Supabase: Load failed, falling back to local API', err);
         }
@@ -112,10 +130,7 @@ export const database = {
 
       if (!response.ok) throw new Error('Failed to fetch state');
       const data = await response.json();
-      if (data) {
-        return data;
-      }
-      return getInitialState();
+      return sanitizeState(data);
     } catch (error) {
       console.error('Database: Load failed completely', error);
       return getInitialState();
