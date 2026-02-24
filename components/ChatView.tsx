@@ -101,12 +101,18 @@ const ChatView: React.FC<ChatViewProps> = ({ state, onUpdateHistory }) => {
     const query = input.toLowerCase();
     const today = new Date();
     
+    // 0. Profanity Filter
+    const badWords = ['fuck', 'shit', 'asshole', 'bitch', 'cunt', 'dick', 'bastard'];
+    if (badWords.some(word => query.includes(word))) {
+      return "Control yourself! This is a respectable Auburn household, not a back alley in Sydney. Go wash your mouth with some of Sudip's cleaning supplies!";
+    }
+
     // 1. WiFi & Tech
     if (query.includes('wifi') || query.includes('internet') || query.includes('password')) {
       return "Listen carefully, I'm only saying this once: The WiFi is 'NetComm 9232' and the password is 'Summer2024@'. Don't make me reset the router!";
     }
 
-    // 2. Rent
+    // 2. Rent Tracking
     if (query.includes('rent') || query.includes('pay') || query.includes('money')) {
       const nextRent = state.rentEvents.find(e => new Date(e.date) >= today) || state.rentEvents[0];
       if (!nextRent) return "Rent? What rent? We're living in a simulation! (Actually, I don't see any rent data right now).";
@@ -153,48 +159,76 @@ const ChatView: React.FC<ChatViewProps> = ({ state, onUpdateHistory }) => {
       return `The latest bill I see is ${latest.category} for ${latest.month} ($${latest.totalAmount}), paid by ${latest.paidBy}. Check the Finance section for the full breakdown.`;
     }
 
-    // 5. People & Gossip
-    if (query.includes('mamun')) {
-      if (query.includes('like') || query.includes('feeling') || query.includes('aarati')) {
-        return "Me? Like someone? I'm a professional house manager! But... if you must know, I might have a tiny soft corner for Aarati. But don't tell the agency, they'll think I'm losing my edge!";
-      }
-      return "I'm Mamun. I keep this house from falling apart. I work at Luna Park, I'm single, and I'm definitely the most well-behaved person here. Any more questions?";
+    // 5. Member Profiles & Gossip
+    const profileMatch = state.members.find(m => query.includes(m.name.toLowerCase()));
+    if (profileMatch && !query.includes('mamun') && !query.includes('sudip') && !query.includes('aarati') && !query.includes('dipanker') && !query.includes('akash') && !query.includes('joya')) {
+      const adv = state.advanceData.memberDetails[profileMatch.name]?.security || profileMatch.initialAdvance;
+      return `${profileMatch.name}'s Profile: Rent Share: $${profileMatch.rentShare}, Security Bond: $${adv}, Phone: ${profileMatch.phone}, Email: ${profileMatch.email}. Born on ${format(new Date(profileMatch.dob), 'MMM do')}. Anything else you want to stalk?`;
     }
 
-    if (query.includes('aarati')) {
-      return "Aarati is friendly, but her heart is in Argentina (literally, her boyfriend is there). She and I have a... complicated dynamic. Let's just say I'm very 'gentle' with her.";
+    if (query.includes('mamun')) {
+      if (query.includes('email')) return "My email? It's mamun@househub.local. Don't spam me with cat videos unless they're really funny.";
+      if (query.includes('like') || query.includes('feeling') || query.includes('aarati') || query.includes('aara')) {
+        return "Look, Aarati is friendly, and yes, I have a 'soft corner' for her. I might be a bit too gentle when she forgets her chores, but can you blame me? She's the best! Just don't tell her boyfriend in Argentina.";
+      }
+      if (query.includes('single') || query.includes('gf') || query.includes('girlfriend')) {
+        return "Yes, I'm single and looking for a girlfriend. But she has to be okay with me constantly checking if the AC is on when it's under 30 degrees!";
+      }
+      return `I'm Mamun. Rent Share: $${state.members.find(m => m.name === 'Mamun')?.rentShare}, Phone: 0444 333 444, Email: mamun@househub.local. I'm the house supervisor and the most well-behaved person in Auburn.`;
+    }
+
+    if (query.includes('hello') || query.includes('hi ') || query.includes('hey')) {
+      return "Hello! I'm Mamun AI. I'm here to manage your life because clearly, you can't do it yourself. What do you want to know about the house?";
     }
 
     if (query.includes('sudip')) {
-      return "Sudip is our Cleaning Manager. He works at Luna Park and he's single. If you see a dust bunny, he's the man to talk to!";
+      if (query.includes('single') || query.includes('gf') || query.includes('girlfriend')) {
+        return "Sudip is single and looking too! He's the Cleaning Manager, so if you want to date him, you better have a very tidy room.";
+      }
+      if (query.includes('akash')) {
+        return "Sudip and Akash have a funny dynamic. One manages the cleaning, the other manages the internet. It's like a sitcom where nothing ever gets downloaded because the floor is being mopped!";
+      }
+      return "Sudip is our Cleaning Manager. He works at Luna Park. He's a good guy, just don't get him started on dust bunnies.";
+    }
+
+    if (query.includes('aarati') || query.includes('aara')) {
+      return "Aarati is our resident ray of sunshine. She's in a long-distance relationship with her boyfriend in Argentina. I try to be gentle with her, much to the annoyance of everyone else!";
     }
 
     if (query.includes('dipanker')) {
-      return "Dipanker manages the utility bills. He works at Luna Park. He's the reason we still have electricity, so be nice to him!";
+      if (query.includes('joya')) {
+        return "Dipanker and Joya? Now that's a house dynamic! He manages the bills, she manages... well, she's Joya! They keep things interesting around here.";
+      }
+      return "Dipanker is the Utility Bill Manager. He's a Luna Park veteran and the reason we have water and gas. Respect the man!";
     }
 
     if (query.includes('akash')) {
-      return "Akash is the Internet Bill Manager. Unlike the rest of us, he doesn't work at Luna Park. He's the gatekeeper of the WiFi!";
+      return "Akash is the Internet Bill Manager. He's the only one of us who doesn't work at Luna Park. He's the gatekeeper of the 5G!";
     }
 
-    // 6. Rules
-    if (query.includes('rule') || query.includes('instruction') || query.includes('ac') || query.includes('shoe') || query.includes('kitchen')) {
-      return "Rules? We have plenty! 1. No AC if it's under 30°C. 2. Kitchen must be sparkling after use. 3. No slippers on the top floor. 4. Organize your shoes! Check the Instructions tab for the full list before I give you a fine!";
+    if (query.includes('joya')) {
+      return "Joya is one of our members. She's part of the Auburn crew and always has something to say about the house dynamics!";
+    }
+
+    // 6. Security Bonds & Financials
+    if (query.includes('bond') || query.includes('security') || query.includes('advance')) {
+      const details = state.members.map(m => {
+        const adv = state.advanceData.memberDetails[m.name]?.security || m.initialAdvance;
+        return `${m.name}: $${adv}`;
+      }).join(', ');
+      return `Here are the security bonds: ${details}. Don't even think about getting them back if you break the oven!`;
     }
 
     // 7. Jokes & Random
     if (query.includes('joke') || query.includes('funny')) {
       const jokes = [
-        "Why did the roommate cross the road? To avoid doing the dishes!",
-        "My life is like a bin rotation. Every week, I'm full of rubbish but I still have to go out.",
-        "I asked Sudip to clean the bathroom. He said he'd do it 'later'. That was in 2024.",
-        "What's the difference between a bill and a roommate? A bill eventually gets paid!"
+        "Why did Mamun cross the road? To see if the AC was on in the house across the street!",
+        "Sudip's dating profile: 'I'm a Cleaning Manager, so I'll sweep you off your feet... and then mop the floor.'",
+        "What's the difference between Aarati and a bill? I'm much more 'gentle' when Aarati is overdue!",
+        "Dipanker's favorite song? 'Money, Money, Money' by ABBA. He loves those utility spreadsheets.",
+        "Akash's life motto: 'I don't work at Luna Park, but my life is still a roller coaster because of this house!'"
       ];
       return jokes[Math.floor(Math.random() * jokes.length)];
-    }
-
-    if (query.includes('hello') || query.includes('hi ') || query.includes('hey')) {
-      return "Hello! I'm Mamun AI. I'm here to manage your life because clearly, you can't do it yourself. What do you want to know about the house?";
     }
 
     // 8. Default Sassy Response
