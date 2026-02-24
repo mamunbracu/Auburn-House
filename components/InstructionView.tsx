@@ -119,6 +119,11 @@ const InstructionView: React.FC<InstructionViewProps> = ({ state, onUpdateInstru
                   <h3 className="text-xl font-black text-slate-800 dark:text-white uppercase italic tracking-tighter">
                     {section.title}
                   </h3>
+                  {section.description && (
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 italic">
+                      {section.description}
+                    </p>
+                  )}
                 </div>
               </div>
               <button 
@@ -155,7 +160,7 @@ const InstructionView: React.FC<InstructionViewProps> = ({ state, onUpdateInstru
               <button onClick={() => { setEditingId(null); setEditForm(null); }} className="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-400 flex items-center justify-center"><X size={20} /></button>
             </header>
 
-            <div className="grid grid-cols-2 gap-4 mb-8">
+            <div className="grid grid-cols-2 gap-4 mb-4">
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Section Title</label>
                 <input type="text" value={editForm.title} onChange={e => setEditForm({ ...editForm, title: e.target.value })} className="w-full bg-slate-50 dark:bg-slate-800 rounded-2xl px-6 py-4 text-sm font-black italic dark:text-white outline-none border-2 border-transparent focus:border-primary" />
@@ -164,6 +169,16 @@ const InstructionView: React.FC<InstructionViewProps> = ({ state, onUpdateInstru
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Emoji Icon</label>
                 <input type="text" value={editForm.emoji} onChange={e => setEditForm({ ...editForm, emoji: e.target.value })} className="w-full bg-slate-50 dark:bg-slate-800 rounded-2xl px-6 py-4 text-center text-xl font-black italic dark:text-white outline-none border-2 border-transparent focus:border-primary" />
               </div>
+            </div>
+
+            <div className="space-y-2 mb-8">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Description (Optional)</label>
+              <textarea 
+                value={editForm.description || ''} 
+                onChange={e => setEditForm({ ...editForm, description: e.target.value })} 
+                placeholder="Briefly describe this section..." 
+                className="w-full bg-slate-50 dark:bg-slate-800 rounded-2xl px-6 py-4 text-xs font-bold italic dark:text-white outline-none border-2 border-transparent focus:border-primary resize-none h-20" 
+              />
             </div>
 
             <div className="space-y-4 mb-10">

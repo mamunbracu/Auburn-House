@@ -17,14 +17,17 @@ const DEFAULT_INSTRUCTIONS: InstructionSection[] = [
   },
   {
     id: '2',
-    title: 'Kitchen Etiquette',
-    emoji: '🍳',
+    title: 'Kitchen Care & Maintenance',
+    emoji: '🧹',
     color: 'amber',
+    description: 'Maintain the heart of the home! Please follow these guidelines to keep our kitchen pristine:',
     rules: [
-      { text: 'Do not place any cookware or cooking items on the kitchen bench.' },
-      { text: 'After cooking, clean the oven and stove burners thoroughly.' },
-      { text: 'Wash, dry, and return all utensils and items to the cabinet after use.' },
-      { text: 'Keep the kitchen tidy at all times.', highlight: true }
+      { text: 'Surfaces: Wipe down all kitchen benches and the sink until sparkling.' },
+      { text: 'Cooking Area: Thoroughly clean the gas stove, burners, and oven.' },
+      { text: 'Floors: Sweep away debris followed by a fresh mop.' },
+      { text: 'Waste: Empty the bin and replace the liner.' },
+      { text: 'Self-Initiative: If you spot something else that needs attention, feel free to take the lead! 😁' },
+      { text: 'MANDATORY: All cookware, utensils, and surfaces used must be thoroughly cleaned and stowed immediately after use—no exceptions.', highlight: true, warning: true }
     ]
   },
   {

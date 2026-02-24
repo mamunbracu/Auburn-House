@@ -29,6 +29,7 @@ import HouseCalendarView from './components/HouseCalendarView';
 import BeautifulDatePicker from './components/BeautifulDatePicker';
 import PinModal from './components/PinModal';
 import AdminView from './components/AdminView';
+import MemberSchedule from './components/MemberSchedule';
 import { getCleaningAssignment, getBinAssignment, getLaundryAssignment, getGrassAssignment } from './services/dataService';
 import { database, getInitialState } from './services/dbService';
 
@@ -233,6 +234,17 @@ const App: React.FC = () => {
         socketRef.current.disconnect();
       }
       unsubscribeSupabase();
+    };
+  }, []);
+
+  useEffect(() => {
+    (window as any).viewMemberProfile = (member: Member) => {
+      setSelectedMember(member);
+      setActiveView('profile');
+      setIsEditingProfile(false);
+    };
+    return () => {
+      delete (window as any).viewMemberProfile;
     };
   }, []);
 
@@ -612,6 +624,8 @@ const App: React.FC = () => {
                           <ProfileField label="Initial Advance" value={selectedMember.initialAdvance.toString()} icon={<Database size={18} />} type="number" isEditing={isEditingProfile} onChange={(v:any) => setSelectedMember({...selectedMember, initialAdvance: parseFloat(v) || 0})} />
                         </div>
                      </div>
+
+                     <MemberSchedule member={selectedMember} state={state} />
                    </div>
                  </div>
               </div>
@@ -684,6 +698,69 @@ const SettingsView = ({ state, onToggleTheme, onUpdateSettings }: { state: AppSt
               * This key is saved to Supabase and shared with all house members.
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* CLOUD SYNC CONFIGURATION */}
+      <section className="space-y-6">
+        <div className="flex items-center gap-3 px-2">
+          <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500"><Cloud size={18} /></div>
+          <h3 className="text-lg font-black text-slate-800 dark:text-white uppercase italic tracking-tight">Cloud Sync (Supabase)</h3>
+        </div>
+        <div className="bg-white dark:bg-slate-900 p-8 rounded-[3rem] border border-slate-100 dark:border-slate-800 shadow-sm space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className={`w-3 h-3 rounded-full ${supabaseService.isEnabled() ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+              <p className="text-sm font-black text-slate-800 dark:text-white uppercase italic">
+                {supabaseService.isEnabled() ? 'Real-time Sync Active' : 'Cloud Sync Offline'}
+              </p>
+            </div>
+            {supabaseService.isEnabled() && (
+              <button 
+                onClick={() => database.save(state)}
+                className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline"
+              >
+                Force Sync Now
+              </button>
+            )}
+          </div>
+          
+          {!supabaseService.isEnabled() && (
+            <div className="p-4 bg-rose-50 dark:bg-rose-950/20 rounded-2xl border border-rose-100 dark:border-rose-900/30">
+              <p className="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-widest leading-relaxed">
+                Supabase keys are missing in Vercel environment variables. Real-time sync across devices is disabled.
+              </p>
+            </div>
+          )}
+
+          {supabaseService.isEnabled() && (
+            <div className="space-y-4">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed italic">
+                To ensure real-time updates work, run this SQL in your Supabase SQL Editor. 
+                <span className="text-emerald-500 block mt-1">Note: If you see "already member of publication", it means it's already working!</span>
+              </p>
+              <pre className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-[9px] font-mono text-slate-600 dark:text-slate-300 overflow-x-auto border border-slate-100 dark:border-slate-700">
+{`-- 1. Create the table
+CREATE TABLE IF NOT EXISTS house_state (
+  id TEXT PRIMARY KEY,
+  state JSONB,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. Enable Realtime (Ignore error if already enabled)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' 
+    AND tablename = 'house_state'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE house_state;
+  END IF;
+END $$;`}
+              </pre>
+            </div>
+          )}
         </div>
       </section>
 

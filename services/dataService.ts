@@ -28,27 +28,22 @@ const getDayIndex = (date: Date) => {
 const getDateKey = (date: Date) => format(date, 'yyyy-MM-dd');
 
 const SPECIAL_CLEANING_ROSTER: Record<string, string> = {
-  '2026-02-23': 'Sudip',
-  '2026-02-26': 'Dipanker',
-  '2026-03-01': 'Fayaz',
+  '2026-02-25': 'Akash',
+  '2026-02-28': 'Fayaz',
   '2026-03-04': 'Joya',
-  '2026-03-07': 'Akash',
-  '2026-03-10': 'Mamun',
-  '2026-03-13': 'Farid',
-  '2026-03-16': 'Aara',
-  '2026-03-19': 'Sudip',
-  '2026-03-22': 'Fayaz',
-  '2026-03-25': 'Joya',
-  '2026-03-28': 'Farid',
-  '2026-03-31': 'Dipanker',
-  '2026-04-03': 'Akash',
-  '2026-04-06': 'Mamun',
-  '2026-04-09': 'Aara',
-  '2026-04-12': 'Sudip',
-  '2026-04-15': 'Joya',
-  '2026-04-18': 'Fayaz',
-  '2026-04-21': 'Farid',
-  '2026-04-24': 'Dipanker',
+  '2026-03-08': 'Aara',
+  '2026-03-12': 'Farid',
+  '2026-03-16': 'Mamun',
+  '2026-03-20': 'Dipanker',
+  '2026-03-24': 'Sudip',
+  '2026-03-28': 'Aara',
+  '2026-04-01': 'Joya',
+  '2026-04-05': 'Farid',
+  '2026-04-09': 'Mamun',
+  '2026-04-13': 'Dipanker',
+  '2026-04-17': 'Sudip',
+  '2026-04-21': 'Fayaz',
+  '2026-04-24': 'Akash',
 };
 
 export const getLaundryAssignment = (date: Date, overrides: ChoreOverride[]) => {
@@ -73,7 +68,7 @@ export const getCleaningAssignment = (date: Date, overrides: ChoreOverride[]) =>
 
   // If we are within the special roster range but not on a specific date, return null
   // This ensures the "roster" only shows the specific dates requested
-  const startRoster = new Date('2026-02-23');
+  const startRoster = new Date('2026-02-25');
   const endRoster = new Date('2026-04-24');
   if (date >= startRoster && date <= endRoster) {
     return null;

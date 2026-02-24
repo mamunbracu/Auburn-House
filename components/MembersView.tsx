@@ -140,12 +140,25 @@ const MembersView: React.FC<MembersViewProps> = ({ state, onAddMember, onUpdateM
                 <button 
                   onClick={() => startEditing(member)}
                   className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary transition-all flex items-center justify-center"
+                  title="Edit Resident"
                 >
                   <Edit2 size={18} />
                 </button>
                 <button 
+                  onClick={() => {
+                    // We need to trigger a navigation to profile view
+                    // Since MembersView doesn't have setActiveView, we'll need to pass it or use a callback
+                    (window as any).viewMemberProfile?.(member);
+                  }}
+                  className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/10 text-indigo-400 hover:text-indigo-600 transition-all flex items-center justify-center"
+                  title="View Profile & Schedule"
+                >
+                  <User size={18} />
+                </button>
+                <button 
                   onClick={() => confirmDelete(member.id)}
                   className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-900/10 text-rose-300 hover:text-rose-500 transition-all flex items-center justify-center"
+                  title="Delete Resident"
                 >
                   <Trash2 size={18} />
                 </button>
