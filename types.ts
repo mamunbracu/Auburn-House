@@ -124,6 +124,16 @@ export interface InstructionSection {
   rules: InstructionRule[];
 }
 
+export interface AppNotification {
+  id: string;
+  type: 'bill' | 'notice' | 'cleaning' | 'grass' | 'rent' | 'system';
+  title: string;
+  message: string;
+  date: string;
+  isRead: boolean;
+  details?: any;
+}
+
 export interface AppState {
   members: Member[];
   cleaningTasks: CleaningTask[];
@@ -138,6 +148,7 @@ export interface AppState {
   notices: Notice[];
   dismissedNoticeIds: string[];
   notificationSettings: NotificationSettings;
+  notifications: AppNotification[];
   instructions: InstructionSection[];
   settings: {
     bgAnimation: boolean;

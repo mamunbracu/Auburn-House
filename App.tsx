@@ -11,7 +11,7 @@ import {
 import { 
   Home, DollarSign, CreditCard, Scissors, Settings as SettingsIcon, Plus, X, MapPin, ArrowLeft, Sparkles, Droplets, Trash2, Save, Moon, Sun, Leaf, Flame, Menu, Edit2, ListChecks, Info, AlertCircle, Bot, Database, Bell, BellOff, Volume2, UserPlus, Mail, Phone, Cake, User, Trash, ArrowUpRight, Megaphone, Users, Calendar, Loader2, Cloud, Heart, ShieldCheck, Palette, Download
 } from 'lucide-react';
-import { AppState, ViewType, MemberName, BillItem, Member, BillPayment, MemberAdvanceDetails, AppTheme, ChoreOverride, ChatMessage, NotificationSettings, Notice, InstructionSection } from './types';
+import { AppState, ViewType, MemberName, BillItem, Member, BillPayment, MemberAdvanceDetails, AppTheme, ChoreOverride, ChatMessage, NotificationSettings, Notice, InstructionSection, AppNotification } from './types';
 import { MEMBERS, generateInitialRent, INITIAL_BILLS } from './constants';
 import Background from './components/Background';
 import MemberStrip from './components/MemberStrip';
@@ -32,6 +32,82 @@ import AdminView from './components/AdminView';
 import MemberSchedule from './components/MemberSchedule';
 import { getCleaningAssignment, getBinAssignment, getLaundryAssignment, getGrassAssignment } from './services/dataService';
 import { database, getInitialState } from './services/dbService';
+
+const NotificationModal: React.FC<{ 
+  notifications: AppNotification[]; 
+  onClose: () => void; 
+  onMarkRead: () => void;
+  onClear: () => void;
+}> = ({ notifications, onClose, onMarkRead, onClear }) => {
+  const unreadCount = notifications.filter(n => !n.isRead).length;
+
+  return (
+    <div className="fixed inset-0 z-[3000] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[3rem] p-8 shadow-2xl border border-slate-100 dark:border-slate-800 animate-in zoom-in-95 duration-300 flex flex-col max-h-[80vh]" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-between items-center mb-6 shrink-0">
+          <div>
+            <h3 className="text-2xl font-black text-slate-800 dark:text-white uppercase italic tracking-tighter leading-none">Notifications</h3>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">
+              {unreadCount} UNREAD • {notifications.length} TOTAL
+            </p>
+          </div>
+          <div className="flex gap-2">
+            {notifications.length > 0 && (
+              <button onClick={onClear} className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center text-rose-500 hover:bg-rose-100 transition-colors" title="Clear All"><Trash2 size={18} /></button>
+            )}
+            <button onClick={onClose} className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-rose-500 transition-colors"><X size={20} /></button>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
+          {notifications.length === 0 ? (
+            <div className="py-12 text-center space-y-4 opacity-40">
+              <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-2xl mx-auto flex items-center justify-center"><BellOff size={32} /></div>
+              <p className="text-[10px] font-black uppercase tracking-widest">No notifications yet</p>
+            </div>
+          ) : (
+            notifications.map((n) => (
+              <div 
+                key={n.id} 
+                className={`p-4 rounded-2xl border transition-all ${n.isRead ? 'bg-slate-50/50 dark:bg-slate-800/30 border-transparent' : 'bg-primary/5 border-primary/20 shadow-sm'}`}
+              >
+                <div className="flex gap-4">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                    n.type === 'bill' ? 'bg-rose-500 text-white' :
+                    n.type === 'notice' ? 'bg-amber-500 text-white' :
+                    n.type === 'cleaning' ? 'bg-emerald-500 text-white' :
+                    'bg-indigo-500 text-white'
+                  }`}>
+                    {n.type === 'bill' ? <CreditCard size={18} /> : 
+                     n.type === 'notice' ? <Megaphone size={18} /> : 
+                     n.type === 'cleaning' ? <Droplets size={18} /> : 
+                     <Bell size={18} />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start gap-2">
+                      <p className="text-xs font-black text-slate-800 dark:text-white uppercase italic leading-tight truncate">{n.title}</p>
+                      <p className="text-[8px] font-bold text-slate-400 uppercase whitespace-nowrap">{format(new Date(n.date), 'HH:mm')}</p>
+                    </div>
+                    <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">{n.message}</p>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {unreadCount > 0 && (
+          <button 
+            onClick={onMarkRead}
+            className="w-full mt-6 py-4 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all italic shrink-0"
+          >
+            Mark all as read
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const THEMES: { id: AppTheme, icon: any, label: string, color: string, desc: string }[] = [
   { id: 'default', icon: Sun, label: 'Indigo Fusion', color: 'bg-indigo-600', desc: 'Modern & balanced' },
@@ -199,6 +275,7 @@ const App: React.FC = () => {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [navigationPath, setNavigationPath] = useState<ViewType[]>([]);
   const [isThemeSelectorOpen, setIsThemeSelectorOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   
   const [state, setState] = useState<AppState>(getInitialState());
   const socketRef = useRef<any>(null);
@@ -311,6 +388,36 @@ const App: React.FC = () => {
       setNavigationPath([]);
   };
 
+  const addNotification = (type: AppNotification['type'], title: string, message: string, details?: any) => {
+    const newNotif: AppNotification = {
+      id: Math.random().toString(36).substr(2, 9),
+      type,
+      title,
+      message,
+      date: new Date().toISOString(),
+      isRead: false,
+      details
+    };
+    setState(prev => ({
+      ...prev,
+      notifications: [newNotif, ...(prev.notifications || [])].slice(0, 50)
+    }));
+  };
+
+  const markAllNotificationsRead = () => {
+    setState(prev => ({
+      ...prev,
+      notifications: (prev.notifications || []).map(n => ({ ...n, isRead: true }))
+    }));
+  };
+
+  const clearNotifications = () => {
+    setState(prev => ({
+      ...prev,
+      notifications: []
+    }));
+  };
+
   const handleAddNotice = (content: string) => {
     const newNotice: Notice = {
       id: Math.random().toString(36).substr(2, 9),
@@ -320,7 +427,32 @@ const App: React.FC = () => {
       isActive: true
     };
     setState(prev => ({ ...prev, notices: [...prev.notices, newNotice] }));
+    addNotification('notice', 'New House Notice', content.length > 50 ? content.substring(0, 50) + '...' : content, newNotice);
     setActiveView('dashboard');
+  };
+
+  const handleAddBill = (bill: BillItem) => {
+    setState(p => ({ ...p, bills: [bill, ...p.bills] }));
+    const perPerson = (bill.totalAmount / 8).toFixed(2);
+    addNotification('bill', `New ${bill.category} Bill`, `A new ${bill.category} bill for ${bill.month} of $${bill.totalAmount} has been added. Each person owes $${perPerson}.`, bill);
+  };
+
+  const handleUpdateBill = (bill: BillItem) => {
+    setState(p => ({ ...p, bills: p.bills.map(item => item.id === bill.id ? bill : item) }));
+    addNotification('bill', `${bill.category} Bill Updated`, `The ${bill.category} bill for ${bill.month} has been updated.`, bill);
+  };
+
+  const handleDeleteBill = (id: string) => {
+    const bill = state.bills.find(b => b.id === id);
+    setState(p => ({ ...p, bills: p.bills.filter(b => b.id !== id) }));
+    if (bill) {
+      addNotification('system', 'Bill Removed', `The ${bill.category} bill for ${bill.month} has been deleted.`);
+    }
+  };
+
+  const handleAddOverride = (override: ChoreOverride) => {
+    setState(p => ({ ...p, choreOverrides: [override, ...p.choreOverrides.filter(x => !(x.date === override.date && x.type === override.type))] }));
+    addNotification('cleaning', 'Roster Updated', `${override.member} has been assigned to ${override.type} on ${format(new Date(override.date), 'MMM do')}.`, override);
   };
 
   const handleDeleteNotice = (id: string) => {
@@ -345,6 +477,7 @@ const App: React.FC = () => {
         } 
       } 
     }));
+    addNotification('system', 'New Resident Joined', `${memberWithId.name} has been added to the house registry.`, memberWithId);
   };
 
   const handleUpdateMember = (updated: Member) => {
@@ -352,6 +485,7 @@ const App: React.FC = () => {
       ...prev,
       members: prev.members.map(m => m.id === updated.id ? updated : m)
     }));
+    addNotification('system', 'Member Profile Updated', `${updated.name}'s information has been updated.`, updated);
   };
 
   const handleDeleteMember = (id: string) => {
@@ -450,6 +584,15 @@ const App: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {isNotificationOpen && (
+        <NotificationModal 
+          notifications={state.notifications || []} 
+          onClose={() => setIsNotificationOpen(false)} 
+          onMarkRead={markAllNotificationsRead}
+          onClear={clearNotifications}
+        />
       )}
 
       {popupImage && (
@@ -556,6 +699,17 @@ const App: React.FC = () => {
                        <h1 className="text-3xl sm:text-5xl font-black tracking-tighter mb-2 uppercase italic leading-tight text-white drop-shadow-lg">Auburn House</h1>
                        <p className="text-white/70 text-xs sm:text-sm font-bold opacity-80 italic">Management Hub • {format(new Date(), 'MMMM yyyy')}</p>
                      </div>
+                     <button 
+                       onClick={() => setIsNotificationOpen(true)}
+                       className="relative w-12 h-12 sm:w-14 sm:h-14 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 hover:bg-white/20 transition-all group"
+                     >
+                       <Bell size={24} className="group-hover:rotate-12 transition-transform" />
+                       {(state.notifications || []).filter(n => !n.isRead).length > 0 && (
+                         <div className="absolute -top-2 -right-2 w-6 h-6 bg-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-primary shadow-lg animate-bounce">
+                           {(state.notifications || []).filter(n => !n.isRead).length}
+                         </div>
+                       )}
+                     </button>
                    </div>
                  </header>
                  <MemberStrip onMemberClick={(n) => { setSelectedMember(state.members.find(m => m.name === n) || null); setActiveView('profile'); setIsEditingProfile(false); }} />
@@ -570,8 +724,8 @@ const App: React.FC = () => {
             {activeView === 'members' && <MembersView state={state} onAddMember={handleAddMember} onUpdateMember={handleUpdateMember} onDeleteMember={handleDeleteMember} />}
             {activeView === 'house-calendar' && <HouseCalendarView state={state} />}
             {activeView === 'rent' && <RentView roommates={state.members} rentEvents={state.rentEvents} onToggleStatus={(id, name) => setState(p => ({ ...p, rentEvents: p.rentEvents.map(e => e.id === id ? { ...e, memberStatuses: { ...e.memberStatuses, [name]: !e.memberStatuses[name] } } : e) }))} />}
-            {activeView === 'finance' && <FinanceView roommates={state.members} bills={state.bills} payments={state.billPayments} onAddBill={(b) => setState(p => ({ ...p, bills: [b, ...p.bills] }))} onUpdateBill={(b) => setState(p => ({ ...p, bills: p.bills.map(item => item.id === b.id ? b : item) }))} onDeleteBill={(id) => setState(p => ({ ...p, bills: p.bills.filter(b => b.id !== id) }))} onAddPayment={(pay) => setState(p => ({ ...p, billPayments: [...p.billPayments, pay]}))} onUpdatePayments={(pays) => setState(p => ({ ...p, billPayments: pays }))} rentEvents={state.rentEvents} />}
-            {activeView === 'schedule' && <ScheduleView roommates={state.members} overrides={state.choreOverrides} onAddOverride={(o) => setState(p => ({ ...p, choreOverrides: [o, ...p.choreOverrides.filter(x => !(x.date === o.date && x.type === o.type))] }))} />}
+            {activeView === 'finance' && <FinanceView roommates={state.members} bills={state.bills} payments={state.billPayments} onAddBill={handleAddBill} onUpdateBill={handleUpdateBill} onDeleteBill={handleDeleteBill} onAddPayment={(pay) => setState(p => ({ ...p, billPayments: [...p.billPayments, pay]}))} onUpdatePayments={(pays) => setState(p => ({ ...p, billPayments: pays }))} rentEvents={state.rentEvents} />}
+            {activeView === 'schedule' && <ScheduleView roommates={state.members} overrides={state.choreOverrides} onAddOverride={handleAddOverride} />}
             {activeView === 'instruction' && <InstructionView state={state} onUpdateInstructions={(inst) => setState(p => ({ ...p, instructions: inst }))} />}
             {activeView === 'data' && <DataView state={state} />}
             {activeView === 'advance' && <AdvanceView roommates={state.members} advanceData={state.advanceData.memberDetails} onUpdateAdvance={(n, d) => setState(p => ({ ...p, advanceData: { ...p.advanceData, memberDetails: { ...p.advanceData.memberDetails, [n]: d } } }))} onImageClick={(src) => setPopupImage(src)} />}
