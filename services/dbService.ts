@@ -27,7 +27,7 @@ const DEFAULT_INSTRUCTIONS: InstructionSection[] = [
       { text: 'Floors: Sweep away debris followed by a fresh mop.' },
       { text: 'Waste: Empty the bin and replace the liner.' },
       { text: 'Self-Initiative: If you spot something else that needs attention, feel free to take the lead! 😁' },
-      { text: 'MANDATORY: All cookware, utensils, and surfaces used must be thoroughly cleaned and stowed immediately after use—no exceptions.', highlight: true, warning: true }
+      { text: 'All cookware, utensils, and surfaces used must be thoroughly cleaned and stowed immediately after use—no exceptions.', highlight: true, warning: true }
     ]
   },
   {

@@ -1,0 +1,343 @@
+{
+  "bills": [],
+  "members": [
+    {
+      "id": "4",
+      "dob": "1991-03-30",
+      "name": "Mamun",
+      "email": "mamun@househub.local",
+      "phone": "0444 333 444",
+      "avatar": "https://scontent.fsyd3-2.fna.fbcdn.net/v/t39.30808-6/615206061_4248602195389882_1960764178199710165_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=1d70fc&_nc_ohc=vQkvLEmdPNUQ7kNvwGu1F2v&_nc_oc=AdmH9ntfuprHMEIz6z4Jj8Ey0PWuhY2Ee2DP0qyjgXQKg5YtsHLx65t_eOnACWULFAzV_lxJDg5RJ9y-uFJMdEx0&_nc_zt=23&_nc_ht=scontent.fsyd3-2.fna&_nc_gid=qQAPWxm4b8gUFtPZuQj8Eg&oh=00_Afsvc-C9PK1ZAVuADQLsjbTxJiG7KW58_SuC55DJ3_ZN3A&oe=699B5DDD",
+      "rentShare": 510,
+      "initialAdvance": 510
+    },
+    {
+      "id": "5",
+      "dob": "1995-12-12",
+      "name": "Aara",
+      "email": "aarati@househub.local",
+      "phone": "0455 555 666",
+      "avatar": "https://raw.githubusercontent.com/mamunbracu/ph-news-portal-starter-pack-NextJs_2nd_Module_Resource/refs/heads/main/aara.jpeg",
+      "rentShare": 0,
+      "initialAdvance": 0
+    },
+    {
+      "id": "1",
+      "dob": "1992-05-15",
+      "name": "Dipanker",
+      "email": "dipanker@househub.local",
+      "phone": "0412 345 678",
+      "avatar": "https://scontent.fsyd3-2.fna.fbcdn.net/v/t39.30808-6/600346531_25326749207005215_2889669373301743310_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=cl0Ha7krIhIQ7kNvwFlhGVJ&_nc_oc=AdmzT5GhyPXBhU56w569deOoTgJZOoAU1XUnIXerNpe2WW7hyrT9s8HcKywjMUskAAiSbAXAgSEgUzYsJGj0dYQC&_nc_zt=23&_nc_ht=scontent.fsyd3-2.fna&_nc_gid=HUOJtoY3kLKvbQmF-OQvqA&oh=00_AfvKzOkbmiucA60jqPcUoaMw6WKH0_itpk8ptS8Ov3LOfg&oe=699A0D85",
+      "rentShare": 410,
+      "initialAdvance": 410
+    },
+    {
+      "id": "3",
+      "dob": "1993-08-10",
+      "name": "Sudip",
+      "email": "sudip@househub.local",
+      "phone": "0433 111 222",
+      "avatar": "https://scontent.fsyd3-2.fna.fbcdn.net/v/t39.30808-6/545613381_4085152295030144_2267473966209946566_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=G2hLT2T4W2AQ7kNvwHFqGZq&_nc_oc=AdmlPwY42pefUdrucGHydzK2vpCN2CAEQK8Cf_mVuIRv-JpANNzDW-XnjLocrwLMviYAkadaKse_D1Jow7BhWV6b&_nc_zt=23&_nc_ht=scontent.fsyd3-2.fna&_nc_gid=rMnc6o_0bJzboOtJpMln5w&oh=00_AfuA9MqyogfybVLfaw4OyUgoqj1_8kZZTIutpNeJw3yxfQ&oe=699A2491",
+      "rentShare": 460,
+      "initialAdvance": 440
+    },
+    {
+      "id": "2",
+      "dob": "1994-11-22",
+      "name": "Akash",
+      "email": "akash@househub.local",
+      "phone": "0422 987 654",
+      "avatar": "https://scontent.fsyd3-1.fna.fbcdn.net/v/t39.30808-6/590629677_5159083107649450_6607275452023911003_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=107&ccb=1-7&_nc_sid=1d70fc&_nc_ohc=_3oDJIUliu0Q7kNvwHS_EoL&_nc_oc=AdnBCUcxTeVWVlWHWu4-d81JvO4alLl89Bgc8orcs9A7r3ipABo8vuU4DatRKh_e49_-hzlenikW3ZjYgwYmxNW-&_nc_zt=23&_nc_ht=scontent.fsyd3-1.fna&_nc_gid=fiUfFexV7IG0S2xXVzxRyQ&oh=00_Afs8Quum6DdSQebPxtTifNURwcIkeHk9wbR7xXbYQ8dYLg&oe=699B5D28",
+      "rentShare": 440,
+      "initialAdvance": 440
+    },
+    {
+      "id": "6",
+      "dob": "1996-01-25",
+      "name": "Joya",
+      "email": "joya@househub.local",
+      "phone": "0466 777 888",
+      "avatar": "https://raw.githubusercontent.com/mamunbracu/ph-news-portal-starter-pack-NextJs_2nd_Module_Resource/refs/heads/main/joya.jpeg",
+      "rentShare": 400,
+      "initialAdvance": 400
+    },
+    {
+      "id": "7",
+      "dob": "1992-07-07",
+      "name": "Fayaz",
+      "email": "fayez@househub.local",
+      "phone": "0477 888 999",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Fayaz",
+      "rentShare": 400,
+      "initialAdvance": 400
+    },
+    {
+      "id": "8",
+      "dob": "1994-09-09",
+      "name": "Farid",
+      "email": "farid@househub.local",
+      "phone": "0488 999 000",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Farid",
+      "rentShare": 380,
+      "initialAdvance": 380
+    }
+  ],
+  "notices": [
+    {
+      "id": "5hdiaq6tb",
+      "date": "2026-02-23T23:27:35.371Z",
+      "author": "Mamun",
+      "content": "hi everyone, iti si databsase testing",
+      "isActive": true
+    }
+  ],
+  "settings": {
+    "theme": "default",
+    "geminiKey": "AIzaSyAbgylZSQkteu9QG3-sXOjYftpvinNeqEc",
+    "bgAnimation": true,
+    "grassStartDate": "2026-02-15",
+    "cleaningStartDate": "2026-02-17"
+  },
+  "rentEvents": [
+    {
+      "id": "rent-1771074000000",
+      "date": "2026-02-14",
+      "amount": 3000,
+      "memberStatuses": {
+        "Aara": false,
+        "Joya": false,
+        "Akash": false,
+        "Farid": false,
+        "Fayaz": false,
+        "Mamun": false,
+        "Sudip": false,
+        "Dipanker": false
+      }
+    },
+    {
+      "id": "rent-1772283600000",
+      "date": "2026-02-28",
+      "amount": 3000,
+      "memberStatuses": {
+        "Aara": false,
+        "Joya": false,
+        "Akash": false,
+        "Farid": false,
+        "Fayaz": false,
+        "Mamun": false,
+        "Sudip": false,
+        "Dipanker": false
+      }
+    },
+    {
+      "id": "rent-1773493200000",
+      "date": "2026-03-14",
+      "amount": 3000,
+      "memberStatuses": {
+        "Aara": false,
+        "Joya": false,
+        "Akash": false,
+        "Farid": false,
+        "Fayaz": false,
+        "Mamun": false,
+        "Sudip": false,
+        "Dipanker": false
+      }
+    },
+    {
+      "id": "rent-1774702800000",
+      "date": "2026-03-28",
+      "amount": 3000,
+      "memberStatuses": {
+        "Aara": false,
+        "Joya": false,
+        "Akash": false,
+        "Farid": false,
+        "Fayaz": false,
+        "Mamun": false,
+        "Sudip": false,
+        "Dipanker": false
+      }
+    },
+    {
+      "id": "rent-1775916000000",
+      "date": "2026-04-11",
+      "amount": 3000,
+      "memberStatuses": {
+        "Aara": false,
+        "Joya": false,
+        "Akash": false,
+        "Farid": false,
+        "Fayaz": false,
+        "Mamun": false,
+        "Sudip": false,
+        "Dipanker": false
+      }
+    },
+    {
+      "id": "rent-1777125600000",
+      "date": "2026-04-25",
+      "amount": 3000,
+      "memberStatuses": {
+        "Aara": false,
+        "Joya": false,
+        "Akash": false,
+        "Farid": false,
+        "Fayaz": false,
+        "Mamun": false,
+        "Sudip": false,
+        "Dipanker": false
+      }
+    }
+  ],
+  "advanceData": {
+    "memberDetails": {
+      "Aara": {
+        "notes": "",
+        "topUp": 0,
+        "security": 0
+      },
+      "Joya": {
+        "notes": "",
+        "topUp": 0,
+        "security": 400
+      },
+      "Akash": {
+        "notes": "",
+        "topUp": 0,
+        "security": 440
+      },
+      "Farid": {
+        "notes": "",
+        "topUp": 0,
+        "security": 380
+      },
+      "Fayaz": {
+        "notes": "",
+        "topUp": 0,
+        "security": 400
+      },
+      "Mamun": {
+        "notes": "",
+        "topUp": 0,
+        "security": 510
+      },
+      "Sudip": {
+        "notes": "",
+        "topUp": 0,
+        "security": 440
+      },
+      "Dipanker": {
+        "notes": "",
+        "topUp": 0,
+        "security": 410
+      }
+    }
+  },
+  "chatHistory": [],
+  "billPayments": [],
+  "grassCutting": [],
+  "instructions": [
+    {
+      "id": "1",
+      "color": "sky",
+      "emoji": "🌡️",
+      "rules": [
+        {
+          "text": "If the temperature is 30°C or below, do NOT turn on the AC.",
+          "warning": true,
+          "highlight": true
+        },
+        {
+          "text": "AC is allowed only above 30°C.",
+          "highlight": false
+        }
+      ],
+      "title": "Air Conditioning"
+    },
+    {
+      "id": "2",
+      "color": "amber",
+      "emoji": "🧹",
+      "description": "Maintain the heart of the home! Please follow these guidelines to keep our kitchen pristine:",
+      "rules": [
+        {
+          "text": "Surfaces: Wipe down all kitchen benches and the sink until sparkling."
+        },
+        {
+          "text": "Cooking Area: Thoroughly clean the gas stove, burners, and oven."
+        },
+        {
+          "text": "Floors: Sweep away debris followed by a fresh mop."
+        },
+        {
+          "text": "Waste: Empty the bin and replace the liner."
+        },
+        {
+          "text": "Self-Initiative: If you spot something else that needs attention, feel free to take the lead! 😁"
+        },
+        {
+          "text": "All cookware, utensils, and surfaces used must be thoroughly cleaned and stowed immediately after use—no exceptions.",
+          "highlight": true,
+          "warning": true
+        }
+      ],
+      "title": "Kitchen Care & Maintenance"
+    },
+    {
+      "id": "3",
+      "color": "indigo",
+      "emoji": "🧼",
+      "rules": [
+        {
+          "text": "Always flush after using the toilet."
+        },
+        {
+          "text": "Keep the basin clean after use."
+        }
+      ],
+      "title": "Cleanliness"
+    },
+    {
+      "id": "4",
+      "color": "rose",
+      "emoji": "🥿",
+      "rules": [
+        {
+          "text": "No slippers are allowed on the top floor.",
+          "warning": true,
+          "highlight": true
+        }
+      ],
+      "title": "Footwear Rules"
+    },
+    {
+      "id": "5",
+      "color": "emerald",
+      "emoji": "👟",
+      "rules": [
+        {
+          "text": "Shoes must be organized in the cabinet."
+        },
+        {
+          "text": "You may keep only one pair outside the cabinet.",
+          "highlight": true
+        }
+      ],
+      "title": "Shoe Storage"
+    }
+  ],
+  "cleaningTasks": [],
+  "choreOverrides": [],
+  "commonExpenses": [],
+  "dismissedNoticeIds": [
+    "5hdiaq6tb"
+  ],
+  "notificationSettings": {
+    "enabled": false,
+    "binReminders": true,
+    "rentReminders": true,
+    "lastCheckedDate": null,
+    "cleaningReminders": true
+  }
+}
