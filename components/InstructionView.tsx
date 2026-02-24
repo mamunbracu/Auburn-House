@@ -206,10 +206,13 @@ const InstructionView: React.FC<InstructionViewProps> = ({ state, onUpdateInstru
             {!isAdding && (
               <button 
                 onClick={() => {
-                  if(confirm("Permanently delete this entire section?")) {
+                  const p = prompt('Enter Admin PIN to delete section:');
+                  if(p === '1535') {
                     onUpdateInstructions(state.instructions.filter(s => s.id !== editForm.id));
                     setEditingId(null);
                     setEditForm(null);
+                  } else {
+                    alert('Invalid PIN');
                   }
                 }}
                 className="w-full mt-4 py-3 text-rose-500 text-[10px] font-black uppercase tracking-widest italic"

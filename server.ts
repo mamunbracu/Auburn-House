@@ -64,12 +64,14 @@ io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
   
   socket.on('update_state', (newState) => {
+    console.log('Received update_state from client:', socket.id);
     writeDB(newState);
+    // Broadcast to all OTHER clients
     socket.broadcast.emit('state_updated', newState);
   });
 
-  socket.on('disconnect', () => {
-    console.log('User disconnected');
+  socket.on('disconnect', (reason) => {
+    console.log(`User disconnected (${socket.id}): ${reason}`);
   });
 });
 

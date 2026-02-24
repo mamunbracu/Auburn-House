@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { AppState, ChatMessage } from '../types';
 import { Send, Bot, User, Loader2, Sparkles, Trash2 } from 'lucide-react';
 import { format, addDays } from 'date-fns';
+import { GoogleGenAI } from "@google/genai";
 import { 
   getLaundryAssignment, 
   getCleaningAssignment, 
@@ -18,11 +19,32 @@ interface ChatViewProps {
 const ChatView: React.FC<ChatViewProps> = ({ state, onUpdateHistory }) => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [typingMessage, setTypingMessage] = useState<string>('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [state.chatHistory, isLoading]);
+  }, [state.chatHistory, isLoading, typingMessage]);
+
+  const typeMessage = (text: string, currentHistory: ChatMessage[]) => {
+    let index = 0;
+    setTypingMessage('');
+    const interval = setInterval(() => {
+      setTypingMessage((prev) => prev + (text[index] || ''));
+      index++;
+      if (index >= text.length) {
+        clearInterval(interval);
+        const aiMessage: ChatMessage = {
+          role: 'model',
+          text: text,
+          timestamp: new Date().toISOString()
+        };
+        onUpdateHistory([...currentHistory, aiMessage]);
+        setTypingMessage('');
+        setIsLoading(false);
+      }
+    }, 20);
+  };
 
   const generateHouseContext = () => {
     const today = new Date();
@@ -264,19 +286,65 @@ const ChatView: React.FC<ChatViewProps> = ({ state, onUpdateHistory }) => {
     setInput('');
     setIsLoading(true);
 
-    // Simulate "thinking" for personality
-    setTimeout(() => {
-      const responseText = getMamunResponse(userMessage.text);
+    try {
+      // 1. Check local rules first for quick/specific responses
+      const localResponse = getMamunResponse(userMessage.text);
       
-      const aiMessage: ChatMessage = {
-        role: 'model',
-        text: responseText,
-        timestamp: new Date().toISOString()
-      };
+      // If it's a default sassy response, we try Gemini instead
+      const defaults = [
+        "I have no idea what you're talking about. Is that a question or are you just typing to feel something?",
+        "Unless that's about the rent or the bins, I really don't care. Focus, people!",
+        "My brain is currently as cluttered as the kitchen bench after Akash cooks. Ask something useful!",
+        "I could answer that, but I'd rather spend my time making sure the AC isn't on for no reason.",
+        "Go ask the agency. Or better yet, go clean your room!"
+      ];
 
-      onUpdateHistory([...updatedHistory, aiMessage]);
-      setIsLoading(false);
-    }, 800);
+      if (!defaults.includes(localResponse)) {
+        typeMessage(localResponse, updatedHistory);
+        return;
+      }
+
+      // 2. Use Gemini for more complex queries
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const context = generateHouseContext();
+      
+      // Add custom knowledge to context for Gemini to be aware of it too
+      const customKnowledgeContext = state.mamunKnowledge.map(k => `Keyword: ${k.keywords.join(', ')} -> Response: ${k.response}`).join('\n');
+
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: `
+              SYSTEM INSTRUCTION:
+              You are Mamun, the house supervisor of a shared townhouse in Auburn.
+              You are well-behaved, responsible, and helpful, but you have a sassy, authoritative personality.
+              You care deeply about house rules (AC, kitchen cleanliness, shoe storage).
+              You have a soft corner for Aarati.
+              You are single and looking for a girlfriend.
+              
+              HOUSE CONTEXT:
+              ${context}
+
+              CUSTOM KNOWLEDGE BASE:
+              ${customKnowledgeContext}
+              
+              USER QUERY: ${userMessage.text}
+              
+              Respond as Mamun. Keep it concise, sassy, and helpful.
+            ` }]
+          }
+        ],
+      });
+
+      const responseText = response.text || "I'm speechless. Truly. (Error in my brain, try again later).";
+      typeMessage(responseText, updatedHistory);
+    } catch (error) {
+      console.error('Gemini Error:', error);
+      const fallbackResponse = getMamunResponse(userMessage.text);
+      typeMessage(fallbackResponse, updatedHistory);
+    }
   };
 
   return (
@@ -360,7 +428,22 @@ const ChatView: React.FC<ChatViewProps> = ({ state, onUpdateHistory }) => {
             </div>
           ))
         )}
-        {isLoading && (
+        {typingMessage && (
+          <div className="flex justify-start animate-in slide-in-from-bottom-1 duration-200">
+            <div className="max-w-[90%] sm:max-w-[80%] flex gap-2.5">
+              <div className="w-7 h-7 rounded-lg flex-shrink-0 bg-primary shadow-lg shadow-primary/20 flex items-center justify-center text-white">
+                <Bot size={12} />
+              </div>
+              <div className="flex flex-col">
+                <div className="p-3.5 sm:p-4 rounded-[1.5rem] rounded-tl-none bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm font-bold leading-normal shadow-sm border border-slate-100 dark:border-slate-700">
+                  {typingMessage}
+                  <span className="inline-block w-1 h-4 bg-primary ml-1 animate-pulse" />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        {isLoading && !typingMessage && (
           <div className="flex justify-start animate-pulse">
             <div className="flex gap-2.5">
               <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center text-white">

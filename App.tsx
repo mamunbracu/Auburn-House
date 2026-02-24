@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { Toaster, toast } from 'react-hot-toast';
 import { io } from 'socket.io-client';
 import { supabaseService } from './services/supabaseService';
 import { 
@@ -109,6 +110,64 @@ const NotificationModal: React.FC<{
   );
 };
 
+const KnowledgeEditorModal: React.FC<{ onClose: () => void; onSave: (keywords: string[], response: string) => void }> = ({ onClose, onSave }) => {
+  const [keywords, setKeywords] = useState('');
+  const [response, setResponse] = useState('');
+
+  const handleSave = () => {
+    if (!keywords.trim() || !response.trim()) return;
+    const keywordList = keywords.split(',').map(k => k.trim()).filter(k => k !== '');
+    onSave(keywordList, response);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-[3000] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[3rem] p-8 shadow-2xl border border-slate-100 dark:border-slate-800 animate-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h3 className="text-2xl font-black text-slate-800 dark:text-white uppercase italic tracking-tighter leading-none">Add Knowledge</h3>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Expand Mamun's Intelligence</p>
+          </div>
+          <button onClick={onClose} className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-rose-500 transition-colors"><X size={20} /></button>
+        </div>
+        
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Keywords (comma separated)</label>
+            <input 
+              type="text" 
+              value={keywords} 
+              onChange={(e) => setKeywords(e.target.value)}
+              placeholder="e.g. rent, payment, money"
+              className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl px-6 py-4 text-sm font-black outline-none dark:text-white italic focus:border-primary transition-colors"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Mamun's Response</label>
+            <textarea 
+              value={response} 
+              onChange={(e) => setResponse(e.target.value)}
+              placeholder="What should Mamun say?"
+              rows={4}
+              className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl px-6 py-4 text-sm font-black outline-none dark:text-white italic focus:border-primary transition-colors resize-none"
+            />
+          </div>
+
+          <button 
+            onClick={handleSave}
+            disabled={!keywords.trim() || !response.trim()}
+            className="w-full py-4 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all italic disabled:opacity-50 disabled:hover:scale-100"
+          >
+            Save to Brain
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const THEMES: { id: AppTheme, icon: any, label: string, color: string, desc: string }[] = [
   { id: 'default', icon: Sun, label: 'Indigo Fusion', color: 'bg-indigo-600', desc: 'Modern & balanced' },
   { id: 'dark', icon: Moon, label: 'Midnight Core', color: 'bg-slate-900', desc: 'Dark focus mode' },
@@ -116,7 +175,7 @@ const THEMES: { id: AppTheme, icon: any, label: string, color: string, desc: str
   { id: 'sunset', icon: Flame, label: 'Sunset Rise', color: 'bg-rose-600', desc: 'Vibrant energy' },
 ];
 
-const DashboardSummary: React.FC<{ state: AppState; onNavigate: (view: ViewType) => void; onDismissNotice: (id: string) => void }> = ({ state, onNavigate, onDismissNotice }) => {
+const DashboardSummary: React.FC<{ state: AppState; onNavigate: (view: ViewType) => void; onDismissNotice: (id: string) => void; isSyncing: boolean }> = ({ state, onNavigate, onDismissNotice, isSyncing }) => {
   const today = useMemo(() => new Date(), []);
   const [noticeToDismiss, setNoticeToDismiss] = useState<string | null>(null);
   
@@ -162,8 +221,10 @@ const DashboardSummary: React.FC<{ state: AppState; onNavigate: (view: ViewType)
     <div className="space-y-6 pb-12">
       <div className="flex justify-between items-center px-4">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 italic">Live House Grid Active</span>
+          <div className={`w-2 h-2 rounded-full ${isSyncing ? 'bg-amber-500 animate-spin' : 'bg-emerald-500 animate-pulse'} shadow-[0_0_8px_rgba(16,185,129,0.8)]`} />
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 italic">
+            {isSyncing ? 'Synchronizing...' : 'Live House Grid Active'}
+          </span>
         </div>
         <div className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 italic">
           {format(today, 'EEEE, MMMM do')}
@@ -276,6 +337,7 @@ const App: React.FC = () => {
   const [navigationPath, setNavigationPath] = useState<ViewType[]>([]);
   const [isThemeSelectorOpen, setIsThemeSelectorOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [isKnowledgeModalOpen, setIsKnowledgeModalOpen] = useState(false);
   
   const [state, setState] = useState<AppState>(getInitialState());
   const socketRef = useRef<any>(null);
@@ -285,7 +347,16 @@ const App: React.FC = () => {
     // Socket.io for local dev
     socketRef.current = io();
 
+    socketRef.current.on('connect', () => {
+      console.log('Connected to WebSocket server');
+    });
+
+    socketRef.current.on('connect_error', (err: any) => {
+      console.error('WebSocket connection error:', err);
+    });
+
     socketRef.current.on('state_updated', (newState: AppState) => {
+      console.log('Received state update via WebSocket');
       isRemoteUpdateRef.current = true;
       setState(newState);
       setTimeout(() => {
@@ -345,9 +416,13 @@ const App: React.FC = () => {
     const syncToDb = async () => {
       setIsSyncing(true);
       await database.save(state);
+      // Emit via socket for immediate real-time update to others
+      if (socketRef.current) {
+        socketRef.current.emit('update_state', state);
+      }
       setTimeout(() => setIsSyncing(false), 800);
     };
-    const timer = setTimeout(syncToDb, 1000);
+    const timer = setTimeout(syncToDb, 500); // Reduced delay for better feel
     return () => clearTimeout(timer);
   }, [state, isDatabaseLoaded]);
 
@@ -409,13 +484,34 @@ const App: React.FC = () => {
       ...prev,
       notifications: (prev.notifications || []).map(n => ({ ...n, isRead: true }))
     }));
+    toast.success('All notifications marked as read.');
   };
 
   const clearNotifications = () => {
+    const pin = prompt('Enter Admin PIN to clear notifications:');
+    if (pin !== '1535') {
+      toast.error('Invalid PIN');
+      return;
+    }
     setState(prev => ({
       ...prev,
       notifications: []
     }));
+    toast.success('Notifications cleared.');
+  };
+
+  const handleAddKnowledge = (keywords: string[], response: string) => {
+    const newItem = {
+      id: Math.random().toString(36).substr(2, 9),
+      keywords,
+      response
+    };
+    setState(prev => ({
+      ...prev,
+      mamunKnowledge: [...(prev.mamunKnowledge || []), newItem]
+    }));
+    addNotification('system', 'Knowledge Added', `New knowledge about "${keywords[0]}" added to Mamun's brain.`);
+    toast.success('Data added to Mamun successfully!');
   };
 
   const handleAddNotice = (content: string) => {
@@ -428,6 +524,7 @@ const App: React.FC = () => {
     };
     setState(prev => ({ ...prev, notices: [...prev.notices, newNotice] }));
     addNotification('notice', 'New House Notice', content.length > 50 ? content.substring(0, 50) + '...' : content, newNotice);
+    toast.success('Notice added successfully!');
     setActiveView('dashboard');
   };
 
@@ -435,32 +532,48 @@ const App: React.FC = () => {
     setState(p => ({ ...p, bills: [bill, ...p.bills] }));
     const perPerson = (bill.totalAmount / 8).toFixed(2);
     addNotification('bill', `New ${bill.category} Bill`, `A new ${bill.category} bill for ${bill.month} of $${bill.totalAmount} has been added. Each person owes $${perPerson}.`, bill);
+    toast.success(`${bill.category} bill added!`);
   };
 
   const handleUpdateBill = (bill: BillItem) => {
     setState(p => ({ ...p, bills: p.bills.map(item => item.id === bill.id ? bill : item) }));
     addNotification('bill', `${bill.category} Bill Updated`, `The ${bill.category} bill for ${bill.month} has been updated.`, bill);
+    toast.success('Bill updated successfully!');
   };
 
   const handleDeleteBill = (id: string) => {
+    const pin = prompt('Enter Admin PIN to delete bill:');
+    if (pin !== '1535') {
+      toast.error('Invalid PIN');
+      return;
+    }
     const bill = state.bills.find(b => b.id === id);
     setState(p => ({ ...p, bills: p.bills.filter(b => b.id !== id) }));
     if (bill) {
       addNotification('system', 'Bill Removed', `The ${bill.category} bill for ${bill.month} has been deleted.`);
+      toast.success('Bill deleted.');
     }
   };
 
   const handleAddOverride = (override: ChoreOverride) => {
     setState(p => ({ ...p, choreOverrides: [override, ...p.choreOverrides.filter(x => !(x.date === override.date && x.type === override.type))] }));
     addNotification('cleaning', 'Roster Updated', `${override.member} has been assigned to ${override.type} on ${format(new Date(override.date), 'MMM do')}.`, override);
+    toast.success('Roster updated!');
   };
 
   const handleDeleteNotice = (id: string) => {
+    const pin = prompt('Enter Admin PIN to delete notice:');
+    if (pin !== '1535') {
+      toast.error('Invalid PIN');
+      return;
+    }
     setState(prev => ({ ...prev, notices: prev.notices.filter(n => n.id !== id) }));
+    toast.success('Notice deleted.');
   };
 
   const handleDismissNotice = (id: string) => {
     setState(prev => ({ ...prev, dismissedNoticeIds: [...prev.dismissedNoticeIds, id] }));
+    toast.success('Notice dismissed.');
   };
 
   const handleAddMember = (newMember: Member) => {
@@ -478,6 +591,7 @@ const App: React.FC = () => {
       } 
     }));
     addNotification('system', 'New Resident Joined', `${memberWithId.name} has been added to the house registry.`, memberWithId);
+    toast.success('Member added successfully!');
   };
 
   const handleUpdateMember = (updated: Member) => {
@@ -486,13 +600,51 @@ const App: React.FC = () => {
       members: prev.members.map(m => m.id === updated.id ? updated : m)
     }));
     addNotification('system', 'Member Profile Updated', `${updated.name}'s information has been updated.`, updated);
+    toast.success('Profile updated!');
   };
 
   const handleDeleteMember = (id: string) => {
+    const pin = prompt('Enter Admin PIN to remove member:');
+    if (pin !== '1535') {
+      toast.error('Invalid PIN');
+      return;
+    }
+    const member = state.members.find(m => m.id === id);
     setState(prev => ({
       ...prev,
       members: prev.members.filter(m => m.id !== id)
     }));
+    toast.success(`${member?.name || 'Member'} removed.`);
+  };
+
+  const handleToggleRentStatus = (id: string, name: string) => {
+    setState(p => ({ ...p, rentEvents: p.rentEvents.map(e => e.id === id ? { ...e, memberStatuses: { ...e.memberStatuses, [name]: !e.memberStatuses[name] } } : e) }));
+    toast.success('Rent status updated.');
+  };
+
+  const handleAddPayment = (pay: BillPayment) => {
+    setState(p => ({ ...p, billPayments: [...p.billPayments, pay]}));
+    toast.success('Payment recorded.');
+  };
+
+  const handleUpdatePayments = (pays: BillPayment[]) => {
+    setState(p => ({ ...p, billPayments: pays }));
+    toast.success('Payments updated.');
+  };
+
+  const handleUpdateInstructions = (inst: InstructionSection[]) => {
+    setState(p => ({ ...p, instructions: inst }));
+    toast.success('Instructions updated.');
+  };
+
+  const handleUpdateAdvance = (name: string, details: MemberAdvanceDetails) => {
+    setState(p => ({ ...p, advanceData: { ...p.advanceData, memberDetails: { ...p.advanceData.memberDetails, [name]: details } } }));
+    toast.success(`Advance details for ${name} updated.`);
+  };
+
+  const handleUpdateSettings = (s: any) => {
+    setState(p => ({ ...p, settings: { ...p.settings, ...s } }));
+    toast.success('Settings updated.');
   };
 
   const navGroups: { title: string; items: { id: ViewType; label: string; icon: any; mobile?: boolean }[] }[] = [
@@ -549,6 +701,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 dark:bg-slate-950 font-['Inter'] transition-colors duration-300">
+      <Toaster position="top-right" />
       <Background />
       {showAdminPin && <PinModal onSuccess={handleAdminAuthSuccess} onCancel={() => setShowAdminPin(false)} />}
       
@@ -592,6 +745,13 @@ const App: React.FC = () => {
           onClose={() => setIsNotificationOpen(false)} 
           onMarkRead={markAllNotificationsRead}
           onClear={clearNotifications}
+        />
+      )}
+
+      {isKnowledgeModalOpen && (
+        <KnowledgeEditorModal 
+          onClose={() => setIsKnowledgeModalOpen(false)}
+          onSave={handleAddKnowledge}
         />
       )}
 
@@ -714,7 +874,7 @@ const App: React.FC = () => {
                  </header>
                  <MemberStrip onMemberClick={(n) => { setSelectedMember(state.members.find(m => m.name === n) || null); setActiveView('profile'); setIsEditingProfile(false); }} />
                  <MemberShowcase />
-                 <DashboardSummary state={state} onNavigate={handleNavClick} onDismissNotice={handleDismissNotice} />
+                 <DashboardSummary state={state} onNavigate={handleNavClick} onDismissNotice={handleDismissNotice} isSyncing={isSyncing} />
               </div>
             )}
 
@@ -723,13 +883,13 @@ const App: React.FC = () => {
             {activeView === 'notices' && <NoticeView state={state} onAddNotice={handleAddNotice} onDeleteNotice={handleDeleteNotice} />}
             {activeView === 'members' && <MembersView state={state} onAddMember={handleAddMember} onUpdateMember={handleUpdateMember} onDeleteMember={handleDeleteMember} />}
             {activeView === 'house-calendar' && <HouseCalendarView state={state} />}
-            {activeView === 'rent' && <RentView roommates={state.members} rentEvents={state.rentEvents} onToggleStatus={(id, name) => setState(p => ({ ...p, rentEvents: p.rentEvents.map(e => e.id === id ? { ...e, memberStatuses: { ...e.memberStatuses, [name]: !e.memberStatuses[name] } } : e) }))} />}
-            {activeView === 'finance' && <FinanceView roommates={state.members} bills={state.bills} payments={state.billPayments} onAddBill={handleAddBill} onUpdateBill={handleUpdateBill} onDeleteBill={handleDeleteBill} onAddPayment={(pay) => setState(p => ({ ...p, billPayments: [...p.billPayments, pay]}))} onUpdatePayments={(pays) => setState(p => ({ ...p, billPayments: pays }))} rentEvents={state.rentEvents} />}
+            {activeView === 'rent' && <RentView roommates={state.members} rentEvents={state.rentEvents} onToggleStatus={handleToggleRentStatus} />}
+            {activeView === 'finance' && <FinanceView roommates={state.members} bills={state.bills} payments={state.billPayments} onAddBill={handleAddBill} onUpdateBill={handleUpdateBill} onDeleteBill={handleDeleteBill} onAddPayment={handleAddPayment} onUpdatePayments={handleUpdatePayments} rentEvents={state.rentEvents} />}
             {activeView === 'schedule' && <ScheduleView roommates={state.members} overrides={state.choreOverrides} onAddOverride={handleAddOverride} />}
-            {activeView === 'instruction' && <InstructionView state={state} onUpdateInstructions={(inst) => setState(p => ({ ...p, instructions: inst }))} />}
+            {activeView === 'instruction' && <InstructionView state={state} onUpdateInstructions={handleUpdateInstructions} />}
             {activeView === 'data' && <DataView state={state} />}
-            {activeView === 'advance' && <AdvanceView roommates={state.members} advanceData={state.advanceData.memberDetails} onUpdateAdvance={(n, d) => setState(p => ({ ...p, advanceData: { ...p.advanceData, memberDetails: { ...p.advanceData.memberDetails, [n]: d } } }))} onImageClick={(src) => setPopupImage(src)} />}
-            {activeView === 'settings' && <SettingsView state={state} onToggleTheme={toggleTheme} onUpdateSettings={(s) => setState(p => ({ ...p, settings: { ...p.settings, ...s } }))} />}
+            {activeView === 'advance' && <AdvanceView roommates={state.members} advanceData={state.advanceData.memberDetails} onUpdateAdvance={handleUpdateAdvance} onImageClick={(src) => setPopupImage(src)} />}
+            {activeView === 'settings' && <SettingsView state={state} onToggleTheme={toggleTheme} onUpdateSettings={handleUpdateSettings} onOpenKnowledgeEditor={() => setIsKnowledgeModalOpen(true)} />}
             
             {activeView === 'profile' && selectedMember && (
               <div className="space-y-8 pb-32 animate-in slide-in-from-right-10 duration-500">
@@ -800,13 +960,32 @@ const ProfileField = ({ label, value, icon, isEditing, onChange, type = "text" }
   );
 };
 
-const SettingsView = ({ state, onToggleTheme, onUpdateSettings }: { state: AppState, onToggleTheme: (t: AppTheme) => void, onUpdateSettings: (s: any) => void }) => {
+const SettingsView = ({ state, onToggleTheme, onUpdateSettings, onOpenKnowledgeEditor }: { state: AppState, onToggleTheme: (t: AppTheme) => void, onUpdateSettings: (s: any) => void, onOpenKnowledgeEditor: () => void }) => {
   return (
     <div className="space-y-12 pb-32 animate-in fade-in duration-500">
       <header>
         <h2 className="text-3xl font-black text-slate-800 dark:text-white uppercase tracking-tighter italic leading-none">App Preferences</h2>
         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Personalize your Auburn Hub Experience</p>
       </header>
+
+      {/* MAMUN KNOWLEDGE EDITOR */}
+      <section className="space-y-6">
+        <div className="flex items-center gap-3 px-2">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary"><Bot size={18} /></div>
+          <h3 className="text-lg font-black text-slate-800 dark:text-white uppercase italic tracking-tight">Mamun's Brain</h3>
+        </div>
+        <div className="bg-white dark:bg-slate-900 p-8 rounded-[3rem] border border-slate-100 dark:border-slate-800 shadow-sm space-y-4">
+          <p className="text-xs font-bold text-slate-500 dark:text-slate-400 leading-relaxed italic">
+            Add custom responses and knowledge to Mamun AI. This data will be saved to the database and synced across all devices.
+          </p>
+          <button 
+            onClick={onOpenKnowledgeEditor}
+            className="w-full py-4 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all italic flex items-center justify-center gap-2"
+          >
+            <Plus size={16} /> Add Data to Ask Mamun
+          </button>
+        </div>
+      </section>
 
       {/* CLOUD SYNC CONFIGURATION */}
       <section className="space-y-6">
@@ -912,7 +1091,15 @@ END $$;`}
               <p className="text-[10px] font-black text-rose-400 uppercase tracking-widest mt-1 italic">Wipe all rent, bills, and user data from device</p>
             </div>
             <button 
-              onClick={() => { const p = prompt('Enter Admin PIN:'); if(p === '1535') database.clear(); else alert('Invalid Access'); }} 
+              onClick={() => { 
+                const p = prompt('Enter Admin PIN:'); 
+                if(p === '1535') {
+                  toast.loading('Wiping system data...');
+                  database.clear(); 
+                } else {
+                  toast.error('Invalid Access');
+                }
+              }} 
               className="px-10 py-4 rounded-2xl bg-rose-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-rose-700 active:scale-95 transition-all"
             >
               Execute Wipe
