@@ -107,6 +107,14 @@ const ChatView: React.FC<ChatViewProps> = ({ state, onUpdateHistory }) => {
       return "Control yourself! This is a respectable Auburn household, not a back alley in Sydney. Go wash your mouth with some of Sudip's cleaning supplies!";
     }
 
+    // 0.1 Custom Knowledge Base
+    const customMatch = state.mamunKnowledge.find(item => 
+      item.keywords.some(keyword => query.includes(keyword.toLowerCase()))
+    );
+    if (customMatch) {
+      return customMatch.response;
+    }
+
     // 1. WiFi & Tech
     if (query.includes('wifi') || query.includes('internet') || query.includes('password')) {
       return "Listen carefully, I'm only saying this once: The WiFi is 'NetComm 9232' and the password is 'Summer2024@'. Don't make me reset the router!";

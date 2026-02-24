@@ -134,6 +134,12 @@ export interface AppNotification {
   details?: any;
 }
 
+export interface KnowledgeItem {
+  id: string;
+  keywords: string[];
+  response: string;
+}
+
 export interface AppState {
   members: Member[];
   cleaningTasks: CleaningTask[];
@@ -149,6 +155,7 @@ export interface AppState {
   dismissedNoticeIds: string[];
   notificationSettings: NotificationSettings;
   notifications: AppNotification[];
+  mamunKnowledge: KnowledgeItem[];
   instructions: InstructionSection[];
   settings: {
     bgAnimation: boolean;
