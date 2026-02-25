@@ -789,7 +789,7 @@ const App: React.FC = () => {
 
       <nav className={`fixed inset-y-0 left-0 w-64 bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800 z-[101] transition-transform duration-300 lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:flex shadow-2xl flex flex-col h-screen overflow-hidden`}>
         {/* Sidebar Header - High Brand Impact */}
-        <div className="p-4 pt-[calc(env(safe-area-inset-top)+1rem)] md:pt-4 border-b dark:border-slate-800 shrink-0">
+        <div className="p-4 pt-12 md:pt-4 border-b dark:border-slate-800 shrink-0">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-black text-xl shadow-xl shadow-primary/20 shrink-0 italic">A</div>
             <span className="text-xl font-black tracking-tighter text-slate-800 dark:text-white uppercase italic leading-none truncate">Auburn</span>
@@ -846,7 +846,7 @@ const App: React.FC = () => {
         </div>
       </nav>
 
-      <main className={`flex-grow lg:ml-64 relative transition-all overflow-x-hidden ${isFullScreenView ? 'p-0 max-w-none' : 'p-2 sm:p-6 md:p-12 pt-[calc(env(safe-area-inset-top)+1rem)] sm:pt-6 md:pt-12 max-w-7xl mx-auto'}`}>
+      <main className={`flex-grow lg:ml-64 relative transition-all overflow-x-hidden ${isFullScreenView ? 'p-0 max-w-none' : 'p-3 sm:p-6 md:p-12 pt-14 sm:pt-6 md:pt-12 max-w-7xl mx-auto'}`}>
         {!isFullScreenView && activeView !== 'dashboard' && (
           <div className="flex justify-between items-center mb-6 min-h-[48px]">
              {!isSidebarOpen && (
