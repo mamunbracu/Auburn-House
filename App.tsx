@@ -44,19 +44,19 @@ const NotificationModal: React.FC<{
 
   return (
     <div className="fixed inset-0 z-[3000] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[3rem] p-8 shadow-2xl border border-slate-100 dark:border-slate-800 animate-in zoom-in-95 duration-300 flex flex-col max-h-[80vh]" onClick={(e) => e.stopPropagation()}>
-        <div className="flex justify-between items-center mb-6 shrink-0">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[1.5rem] sm:rounded-[3rem] p-4 sm:p-8 shadow-2xl border border-slate-100 dark:border-slate-800 animate-in zoom-in-95 duration-300 flex flex-col max-h-[85vh]" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-between items-center mb-3 sm:mb-6 shrink-0">
           <div>
-            <h3 className="text-2xl font-black text-slate-800 dark:text-white uppercase italic tracking-tighter leading-none">Notifications</h3>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">
+            <h3 className="text-lg sm:text-2xl font-black text-slate-800 dark:text-white uppercase italic tracking-tighter leading-none">Notifications</h3>
+            <p className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 sm:mt-2">
               {unreadCount} UNREAD • {notifications.length} TOTAL
             </p>
           </div>
           <div className="flex gap-2">
             {notifications.length > 0 && (
-              <button onClick={onClear} className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center text-rose-500 hover:bg-rose-100 transition-colors" title="Clear All"><Trash2 size={18} /></button>
+              <button onClick={onClear} className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center text-rose-500 hover:bg-rose-100 transition-colors" title="Clear All"><Trash2 size={16} className="sm:w-[18px] sm:h-[18px]" /></button>
             )}
-            <button onClick={onClose} className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-rose-500 transition-colors"><X size={20} /></button>
+            <button onClick={onClose} className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-rose-500 transition-colors"><X size={18} className="sm:w-5 sm:h-5" /></button>
           </div>
         </div>
 
@@ -210,7 +210,6 @@ const DashboardSummary: React.FC<{ state: AppState; onNavigate: (view: ViewType)
   const grassPerson = useMemo(() => getGrassAssignment(grassDate, state.choreOverrides), [grassDate, state.choreOverrides]);
 
   const cards = [
-    { label: 'Upcoming Rent', value: nextRent ? `$${nextRent.amount}` : 'N/A', date: nextRent ? format(new Date(nextRent.date), 'EEEE, MMM do') : 'TBD', icon: <DollarSign size={20} />, color: 'bg-emerald-500', text: 'text-emerald-500', target: 'rent' as ViewType },
     { label: cleaningInfo.label, value: cleaningInfo.value, date: cleaningInfo.date, icon: <Sparkles size={20} />, color: 'bg-amber-500', text: 'text-amber-500', target: 'schedule' as ViewType },
     { label: 'Laundry Share', value: laundryPerson, date: format(today, 'EEEE, MMM do'), icon: <Droplets size={20} />, color: 'bg-sky-500', text: 'text-sky-500', target: 'schedule' as ViewType },
     { label: 'Grass Cutting', value: grassPerson, date: format(grassDate, 'EEEE, MMM do'), icon: <Scissors size={20} />, color: 'bg-green-600', text: 'text-green-600', target: 'schedule' as ViewType },
@@ -242,29 +241,28 @@ const DashboardSummary: React.FC<{ state: AppState; onNavigate: (view: ViewType)
           {activeNotices.map((notice) => (
             <div 
               key={notice.id} 
-              className="bg-rose-600 text-white p-6 sm:p-8 rounded-[3rem] shadow-2xl shadow-rose-600/30 border-4 border-white/20 relative overflow-hidden group animate-pulse-slow"
+              className="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-[1rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm relative overflow-hidden group w-full"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-rose-700 via-rose-500 to-rose-700 animate-gradient opacity-50" />
-              <div className="relative z-10 flex justify-between items-start gap-6">
-                <div className="flex items-start gap-5">
-                  <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/30 shrink-0">
-                    <Megaphone size={28} />
+              <div className="relative z-10 flex justify-between items-start gap-3 sm:gap-6 w-full">
+                <div className="flex items-start gap-3 sm:gap-5 min-w-0">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-rose-500 rounded-xl sm:rounded-2xl flex items-center justify-center text-white shrink-0 shadow-lg">
+                    <Megaphone size={18} className="sm:w-6 sm:h-6" />
                   </div>
-                  <div>
-                    <h3 className="text-xl font-black uppercase italic tracking-tighter leading-none mb-1 flex items-center gap-2">
-                      Official Broadcast <span className="text-[10px] bg-white text-rose-600 px-2 py-0.5 rounded-full not-italic">URGENT</span>
+                  <div className="min-w-0">
+                    <h3 className="text-sm sm:text-lg font-black uppercase italic tracking-tighter leading-none mb-1 sm:mb-1 flex flex-wrap items-center gap-1.5 sm:gap-2 text-rose-600 dark:text-rose-400">
+                      Official Broadcast <span className="text-[7px] sm:text-[9px] bg-rose-600 text-white px-1.5 py-0.5 rounded-full not-italic">URGENT</span>
                     </h3>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-rose-100 mb-4 opacity-80">Posted {format(new Date(notice.date), 'MMM do')}</p>
-                    <p className="text-base font-black italic tracking-tight leading-relaxed text-white drop-shadow-md pr-12">
+                    <p className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.1em] sm:tracking-[0.2em] text-slate-400 mb-1.5 sm:mb-2 opacity-80">Posted {format(new Date(notice.date), 'MMM do')}</p>
+                    <p className="text-xs sm:text-sm font-medium leading-relaxed text-slate-800 dark:text-slate-100 pr-2 sm:pr-12 break-words">
                       {notice.content}
                     </p>
                   </div>
                 </div>
                 <button 
                   onClick={() => setNoticeToDismiss(notice.id)}
-                  className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-2xl flex items-center justify-center transition-all border border-white/20 group-hover:scale-110 active:scale-90"
+                  className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg sm:rounded-xl flex items-center justify-center transition-all border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-rose-500 shrink-0"
                 >
-                  <X size={24} />
+                  <X size={14} className="sm:w-5 sm:h-5" />
                 </button>
               </div>
             </div>
@@ -272,50 +270,63 @@ const DashboardSummary: React.FC<{ state: AppState; onNavigate: (view: ViewType)
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4 w-full">
         {cards.map((card, i) => (
           <button 
             key={i} 
             onClick={() => onNavigate(card.target)}
-            className="bg-white dark:bg-slate-900 p-6 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-between group text-left"
+            className="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-[1rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-between group text-left w-full"
           >
-            <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-2xl ${card.color} text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
-                {card.icon}
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+              <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl ${card.color} text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform shrink-0`}>
+                {React.cloneElement(card.icon as React.ReactElement, { size: 18 })}
               </div>
-              <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{card.label}</p>
-                <p className="text-lg font-black text-slate-800 dark:text-white uppercase italic tracking-tighter mt-0.5">{card.value}</p>
+              <div className="min-w-0 pr-2">
+                <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest">{card.label}</p>
+                <p className="text-sm sm:text-lg font-black text-slate-800 dark:text-white uppercase italic tracking-tighter mt-0.5">{card.value}</p>
               </div>
             </div>
-            <div className="text-right">
-              <p className={`text-[9px] font-black uppercase tracking-tight ${card.text}`}>{card.date}</p>
+            <div className="text-right shrink-0">
+              <p className={`text-[8px] sm:text-[9px] font-black uppercase tracking-tight ${card.text}`}>{card.date}</p>
             </div>
           </button>
         ))}
       </div>
 
-      <div 
-        onClick={() => onNavigate('rent')}
-        className="bg-rose-600 rounded-[3rem] p-8 text-white shadow-[0_20px_50px_rgba(225,29,72,0.4)] relative overflow-hidden group cursor-pointer hover:shadow-rose-600/60 transition-all active:scale-[0.98] border-4 border-white/20"
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-rose-700 to-rose-500 animate-gradient opacity-50" />
-        <div className="relative z-10 flex flex-col sm:flex-row justify-between items-center gap-6 text-center sm:text-left">
-          <div className="flex flex-col sm:flex-row items-center gap-5">
-            <div className="w-16 h-16 bg-white/20 rounded-[2rem] flex items-center justify-center animate-pulse border border-white/30 backdrop-blur-md shrink-0">
-              <AlertCircle size={32} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mt-3 sm:mt-4 w-full">
+        <div 
+          onClick={() => onNavigate('rent')}
+          className="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-[1rem] sm:rounded-[2.5rem] border-2 border-rose-500 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-between group text-left w-full cursor-pointer"
+        >
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-rose-500 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform shrink-0">
+              <AlertCircle size={18} />
             </div>
-            <div>
-              <h3 className="text-2xl font-black uppercase italic tracking-tighter leading-none">ACTION REQUIRED</h3>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-rose-100 mt-2">Financial Hub Status: ACTIVE</p>
+            <div className="min-w-0 pr-2">
+              <p className="text-[9px] sm:text-[10px] font-black text-rose-500 uppercase tracking-widest">Action Required</p>
+              <p className="text-lg sm:text-2xl font-black text-rose-600 dark:text-rose-400 uppercase italic tracking-tighter mt-0.5">SEND MONEY TO MAMUN</p>
             </div>
           </div>
-          <div className="flex flex-col items-center sm:items-end">
-            <p className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black uppercase italic tracking-tighter text-white drop-shadow-2xl leading-none">
-              SEND MONEY TO MAMUN
-            </p>
-            <p className="text-[10px] font-bold text-rose-100 uppercase tracking-[0.2em] mt-3 flex items-center gap-2">
-              Next Due: {nextRent ? format(new Date(nextRent.date), 'MMMM do') : 'TBD'} <ArrowUpRight size={14} />
+        </div>
+
+        <div 
+          onClick={() => onNavigate('rent')}
+          className="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-[1rem] sm:rounded-[2.5rem] border-2 border-emerald-500 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-between group text-left w-full cursor-pointer"
+        >
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform shrink-0">
+              <Calendar size={18} />
+            </div>
+            <div className="min-w-0 pr-2">
+              <p className="text-[9px] sm:text-[10px] font-black text-emerald-500 uppercase tracking-widest">Upcoming Rent</p>
+              <p className="text-lg sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 uppercase italic tracking-tighter mt-0.5">
+                {nextRent ? `$${nextRent.amount}` : 'TBD'}
+              </p>
+            </div>
+          </div>
+          <div className="text-right shrink-0">
+            <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-tight text-emerald-500">
+              Due: {nextRent ? format(new Date(nextRent.date), 'EEEE, MMM do') : 'TBD'}
             </p>
           </div>
         </div>
@@ -345,7 +356,10 @@ const App: React.FC = () => {
 
   useEffect(() => {
     // Socket.io for local dev
-    socketRef.current = io();
+    socketRef.current = io({
+      path: '/socket.io/',
+      transports: ['websocket', 'polling']
+    });
 
     socketRef.current.on('connect', () => {
       console.log('Connected to WebSocket server');
@@ -706,7 +720,7 @@ const App: React.FC = () => {
   const showBackButton = navigationPath.includes('admin') && activeView !== 'admin';
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 dark:bg-slate-950 font-['Inter'] transition-colors duration-300">
+    <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 dark:bg-slate-950 font-['Inter'] transition-colors duration-300 overflow-x-hidden">
       <Toaster position="top-right" />
       <Background />
       {showAdminPin && <PinModal onSuccess={handleAdminAuthSuccess} onCancel={() => setShowAdminPin(false)} />}
@@ -769,20 +783,24 @@ const App: React.FC = () => {
       )}
 
       {/* SIDEBAR - LUXURIOUS REFINEMENT */}
-      <nav className={`fixed inset-y-0 left-0 w-64 bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800 z-[100] transition-transform duration-300 md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:flex shadow-2xl flex flex-col h-screen overflow-hidden`}>
+      <div className={`fixed inset-0 z-[100] lg:hidden transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+        <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)} />
+      </div>
+
+      <nav className={`fixed inset-y-0 left-0 w-64 bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800 z-[101] transition-transform duration-300 lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:flex shadow-2xl flex flex-col h-screen overflow-hidden`}>
         {/* Sidebar Header - High Brand Impact */}
-        <div className="p-6 pt-[calc(env(safe-area-inset-top)+1.5rem)] md:pt-6 border-b dark:border-slate-800 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 bg-primary rounded-xl flex items-center justify-center text-white font-black text-xl shadow-xl shadow-primary/20 shrink-0 italic">A</div>
-            <span className="text-2xl font-black tracking-tighter text-slate-800 dark:text-white uppercase italic leading-none">Auburn</span>
+        <div className="p-4 pt-[calc(env(safe-area-inset-top)+1rem)] md:pt-4 border-b dark:border-slate-800 shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-black text-xl shadow-xl shadow-primary/20 shrink-0 italic">A</div>
+            <span className="text-xl font-black tracking-tighter text-slate-800 dark:text-white uppercase italic leading-none truncate">Auburn</span>
             <button 
               onClick={() => setIsThemeSelectorOpen(true)}
-              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-primary ml-1"
+              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-primary ml-auto shrink-0"
               title="Change Theme"
             >
               <Palette size={18} />
             </button>
-            <button className="md:hidden text-slate-400 ml-auto" onClick={() => setIsSidebarOpen(false)}><X size={24} /></button>
+            <button className="lg:hidden p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 shrink-0" onClick={() => setIsSidebarOpen(false)}><X size={24} /></button>
           </div>
         </div>
 
@@ -828,19 +846,21 @@ const App: React.FC = () => {
         </div>
       </nav>
 
-      <main className={`flex-grow md:ml-64 relative transition-all ${isFullScreenView ? 'p-0 max-w-none' : 'p-4 sm:p-6 md:p-12 pt-[env(safe-area-inset-top)] sm:pt-6 md:pt-12 max-w-7xl mx-auto'}`}>
-        {!isFullScreenView && (
-          <div className="flex justify-between items-center mb-6 min-h-[64px] md:min-h-[48px]">
-             <button 
-               className="md:hidden p-4 bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-800 active:scale-90 transition-all z-[110] flex items-center justify-center" 
-               onClick={(e) => {
-                 e.stopPropagation();
-                 setIsSidebarOpen(true);
-               }}
-               aria-label="Open Menu"
-             >
-               <Menu size={24} className="text-primary" />
-             </button>
+      <main className={`flex-grow lg:ml-64 relative transition-all overflow-x-hidden ${isFullScreenView ? 'p-0 max-w-none' : 'p-2 sm:p-6 md:p-12 pt-4 sm:pt-6 md:pt-12 max-w-7xl mx-auto'}`}>
+        {!isFullScreenView && activeView !== 'dashboard' && (
+          <div className="flex justify-between items-center mb-6 min-h-[48px]">
+             {!isSidebarOpen && (
+               <button 
+                 className="lg:hidden p-3 bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-100 dark:border-slate-800 active:scale-90 transition-all z-[110] flex items-center justify-center" 
+                 onClick={(e) => {
+                   e.stopPropagation();
+                   setIsSidebarOpen(true);
+                 }}
+                 aria-label="Open Menu"
+               >
+                 <Menu size={20} className="text-primary" />
+               </button>
+             )}
              
              {showBackButton && (
                  <button 
@@ -853,25 +873,61 @@ const App: React.FC = () => {
           </div>
         )}
 
-        <div className="animate-in fade-in zoom-in-95 duration-500 h-full flex flex-col">
+        <div className={`animate-in fade-in zoom-in-95 duration-500 h-full flex flex-col ${activeView === 'dashboard' ? 'mt-0' : ''}`}>
           <div className="flex-grow">
             {activeView === 'dashboard' && (
-              <div className="space-y-8 pb-32 md:pb-0">
-                 <header className="relative h-44 sm:h-56 rounded-[2rem] sm:rounded-[3rem] overflow-hidden bg-primary flex items-center p-6 sm:p-10 text-white shadow-2xl">
-                   <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary-hover to-slate-900 animate-gradient" />
-                   <div className="relative z-10 w-full flex justify-between items-end">
-                     <div>
-                       <div className="flex items-center gap-3 mb-3 opacity-80 uppercase text-[8px] sm:text-[10px] font-black tracking-[0.3em]"><MapPin size={14} /> 37 Normanby Rd, Auburn</div>
-                       <h1 className="text-3xl sm:text-5xl font-black tracking-tighter mb-2 uppercase italic leading-tight text-white drop-shadow-lg">Auburn House</h1>
-                       <p className="text-white/70 text-xs sm:text-sm font-bold opacity-80 italic">Management Hub • {format(new Date(), 'MMMM yyyy')}</p>
+              <div className="space-y-3 sm:space-y-8 pb-12 md:pb-0 w-full">
+                 <header className="relative sm:aspect-[3/1] md:aspect-[4/1] rounded-2xl sm:rounded-[3rem] overflow-hidden bg-primary flex items-center p-4 sm:p-8 md:p-12 lg:p-16 text-white shadow-md sm:shadow-2xl group">
+                   <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-primary to-rose-600 animate-gradient bg-[length:200%_200%]" />
+                   
+                   {/* Animated Background Elements */}
+                   <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all duration-700" />
+                   <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-rose-500/20 rounded-full blur-3xl group-hover:bg-rose-500/30 transition-all duration-700" />
+
+                   <div className="relative z-10 w-full flex justify-between items-center gap-2">
+                     <div className="flex items-center gap-3 sm:gap-4 md:gap-8 lg:gap-12 min-w-0 flex-1">
+                       {!isSidebarOpen && (
+                         <button 
+                           className="lg:hidden w-10 h-10 sm:w-12 sm:h-12 bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl flex items-center justify-center border border-white/20 active:scale-90 transition-all shrink-0 shadow-lg hover:bg-white/20" 
+                           onClick={(e) => {
+                             e.stopPropagation();
+                             setIsSidebarOpen(true);
+                           }}
+                         >
+                           <Menu size={20} className="sm:w-6 sm:h-6 text-white" />
+                         </button>
+                       )}
+                       <div className="min-w-0 flex-1">
+                         <div className="flex items-center gap-1 sm:gap-3 mb-1 sm:mb-2 md:mb-4 opacity-90 uppercase text-[7px] sm:text-[9px] md:text-[12px] lg:text-[14px] font-black tracking-[0.2em] sm:tracking-[0.4em] truncate text-indigo-100">
+                           <MapPin size={10} className="sm:w-4 sm:h-4 text-rose-300 animate-pulse" /> 
+                           <span>37 Normanby Rd, Auburn</span>
+                         </div>
+                         
+                         <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4 mb-1 sm:mb-3">
+                           <h1 className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-black tracking-tighter uppercase italic leading-none text-white drop-shadow-2xl truncate">
+                             Auburn Hub
+                           </h1>
+                           <div className="flex items-center gap-2 text-rose-200 animate-in slide-in-from-left duration-700 delay-300">
+                             <span className="text-[10px] sm:text-sm md:text-xl font-bold italic opacity-80">by</span>
+                             <span className="text-sm sm:text-xl md:text-3xl font-black uppercase tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-rose-200 to-amber-200 drop-shadow-lg">
+                               Mamun
+                             </span>
+                           </div>
+                         </div>
+
+                         <p className="text-indigo-100 text-[8px] sm:text-xs md:text-base lg:text-lg font-bold opacity-80 italic truncate flex items-center gap-2">
+                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                           Management Portal • {format(new Date(), 'MMMM yyyy')}
+                         </p>
+                       </div>
                      </div>
                      <button 
                        onClick={() => setIsNotificationOpen(true)}
-                       className="relative w-12 h-12 sm:w-14 sm:h-14 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 hover:bg-white/20 transition-all group"
+                       className="relative w-10 h-10 sm:w-14 sm:h-14 md:w-20 md:h-20 lg:w-24 lg:h-24 bg-white/10 backdrop-blur-xl rounded-xl sm:rounded-3xl flex items-center justify-center border border-white/20 hover:bg-white/20 transition-all group shrink-0 ml-2 shadow-xl hover:shadow-2xl hover:-translate-y-1"
                      >
-                       <Bell size={24} className="group-hover:rotate-12 transition-transform" />
+                       <Bell size={18} className="sm:w-6 md:w-8 lg:w-10 text-white group-hover:rotate-12 transition-transform" />
                        {(state.notifications || []).filter(n => !n.isRead).length > 0 && (
-                         <div className="absolute -top-2 -right-2 w-6 h-6 bg-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-primary shadow-lg animate-bounce">
+                         <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 bg-rose-500 text-white text-[8px] sm:text-[10px] md:text-xs font-black rounded-full flex items-center justify-center border-2 border-primary shadow-lg animate-bounce">
                            {(state.notifications || []).filter(n => !n.isRead).length}
                          </div>
                        )}
@@ -885,7 +941,7 @@ const App: React.FC = () => {
             )}
 
             {activeView === 'admin' && <AdminView onNavigate={handleNavClick} />}
-            {activeView === 'chat' && <ChatView state={state} onUpdateHistory={(h) => setState(p => ({ ...p, chatHistory: h }))} />}
+            {activeView === 'chat' && <ChatView state={state} onUpdateHistory={(h) => setState(p => ({ ...p, chatHistory: h }))} onBack={() => setActiveView('dashboard')} />}
             {activeView === 'notices' && <NoticeView state={state} onAddNotice={handleAddNotice} onDeleteNotice={handleDeleteNotice} />}
             {activeView === 'members' && <MembersView state={state} onAddMember={handleAddMember} onUpdateMember={handleUpdateMember} onDeleteMember={handleDeleteMember} />}
             {activeView === 'house-calendar' && <HouseCalendarView state={state} />}
@@ -941,17 +997,19 @@ const App: React.FC = () => {
             )}
           </div>
           {!isFullScreenView && (
-            <footer className="mt-20 py-12 flex flex-col items-center gap-4 opacity-40 hover:opacity-100 transition-opacity">
-              <div className="w-12 h-0.5 bg-slate-300 dark:bg-slate-800 rounded-full" />
-              <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-slate-400 italic"><span>Made with</span><Heart size={10} className="text-rose-500 fill-rose-500 animate-pulse" /><span>by Mamun</span></div>
+            <footer className="mt-20 py-12 flex flex-col items-center gap-6 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+              <div className="w-16 h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent rounded-full" />
+              <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-slate-400 italic relative z-10">
+                <span className="group-hover:-translate-x-2 transition-transform duration-500">Crafted with</span>
+                <Heart size={14} className="text-rose-500 fill-rose-500 animate-bounce shadow-lg shadow-rose-500/20" />
+                <span className="group-hover:translate-x-2 transition-transform duration-500">by Mamun</span>
+              </div>
+              <div className="text-[8px] font-bold tracking-widest text-slate-400/50 uppercase">Auburn House Management System</div>
             </footer>
           )}
         </div>
       </main>
-
-      <div className="md:hidden fixed bottom-0 inset-x-0 h-16 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-100 dark:border-slate-800 flex items-center justify-around px-4 pb-safe z-50">
-        {allNavItems.filter(i=>i.mobile).map(i => (<button key={i.id} onClick={() => handleNavClick(i.id)} className={`flex flex-col items-center gap-1 transition-all ${activeView === i.id || (i.id === 'admin' && ['members', 'rent', 'finance', 'schedule', 'advance', 'data', 'settings', 'notices', 'instruction'].includes(activeView)) ? 'text-primary scale-110' : 'text-slate-300'}`}><i.icon size={18} /><span className="text-[8px] font-black uppercase tracking-tighter">{i.label}</span></button>))}
-      </div>
     </div>
   );
 };

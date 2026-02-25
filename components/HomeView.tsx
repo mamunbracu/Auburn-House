@@ -137,13 +137,13 @@ const HomeView: React.FC<HomeViewProps> = ({ roommates, bills, overrides, onUpda
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[200%] h-[300px] bg-gradient-to-b from-indigo-500/20 via-rose-500/5 to-transparent blur-[80px] -z-10 opacity-60" />
 
       <header className="flex justify-between items-start pt-2 px-2 relative z-10">
-        <div>
-          <h1 className="text-2xl font-black tracking-tighter text-white uppercase italic leading-none drop-shadow-2xl">37 Auburn House</h1>
-          <p className="text-indigo-300 text-[9px] font-black uppercase tracking-[0.3em] mt-1 opacity-80">
+        <div className="min-w-0">
+          <h1 className="text-lg sm:text-2xl font-black tracking-tighter text-white uppercase italic leading-none drop-shadow-2xl truncate">37 Auburn House</h1>
+          <p className="text-indigo-300 text-[7px] sm:text-[9px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] mt-1 opacity-80">
             {today.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
           </p>
         </div>
-        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-xl shadow-[0_8px_20px_rgba(79,70,229,0.4)] border border-white/20">
+        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-base sm:text-xl shadow-[0_8px_20px_rgba(79,70,229,0.4)] border border-white/20 shrink-0">
           🏠
         </div>
       </header>
@@ -152,52 +152,52 @@ const HomeView: React.FC<HomeViewProps> = ({ roommates, bills, overrides, onUpda
       <div ref={mountRef} className="w-full h-[180px] relative z-10" />
 
       {/* SUMMARY GRID */}
-      <div className="grid grid-cols-2 gap-3 px-1 relative z-10">
-        <div className="relative overflow-hidden p-4 rounded-3xl border border-indigo-400/30 bg-indigo-900/60 shadow-xl">
-          <p className="text-[8px] text-indigo-200 font-black uppercase tracking-widest opacity-80">TOTAL RENT</p>
-          <p className="text-2xl font-black text-white mt-1 tracking-tighter drop-shadow-lg">${totalRent}</p>
-          <p className="text-[9px] text-yellow-300 font-bold mt-1 uppercase tracking-tighter">{formattedRentDate.toUpperCase()}</p>
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 px-1 relative z-10">
+        <div className="relative overflow-hidden p-3 sm:p-4 rounded-2xl sm:rounded-3xl border border-indigo-400/30 bg-indigo-900/60 shadow-xl">
+          <p className="text-[7px] sm:text-[8px] text-indigo-200 font-black uppercase tracking-widest opacity-80">TOTAL RENT</p>
+          <p className="text-lg sm:text-2xl font-black text-white mt-1 tracking-tighter drop-shadow-lg">${totalRent}</p>
+          <p className="text-[8px] sm:text-[9px] text-yellow-300 font-bold mt-1 uppercase tracking-tighter">{formattedRentDate.toUpperCase()}</p>
         </div>
-        <div className="glass p-4 rounded-3xl border border-white/10 bg-slate-900/60 shadow-lg flex flex-col justify-center">
-          <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest">Utility Split</p>
-          <p className="text-xl font-black text-rose-400 mt-1 tracking-tighter">${(totalBills / 8).toFixed(2)}</p>
-          <p className="text-[8px] text-slate-500 font-bold mt-1 uppercase tracking-tighter opacity-60">PER ROOMMATE</p>
+        <div className="glass p-3 sm:p-4 rounded-2xl sm:rounded-3xl border border-white/10 bg-slate-900/60 shadow-lg flex flex-col justify-center">
+          <p className="text-[7px] sm:text-[8px] text-slate-400 font-black uppercase tracking-widest">Utility Split</p>
+          <p className="text-base sm:text-xl font-black text-rose-400 mt-1 tracking-tighter">${(totalBills / 8).toFixed(2)}</p>
+          <p className="text-[7px] sm:text-[8px] text-slate-500 font-bold mt-1 uppercase tracking-tighter opacity-60">PER ROOMMATE</p>
         </div>
       </div>
 
       {/* CHORE SCHEDULES */}
-      <section className="space-y-3 px-1 relative z-10">
-        <div className="flex gap-3">
-          <div className="flex-1 bg-gradient-to-br from-sky-600/30 to-indigo-600/10 backdrop-blur-xl p-4 rounded-[32px] border border-sky-400/20 shadow-xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-3 opacity-30 group-hover:opacity-100 transition-opacity">🧺</div>
-            <p className="text-[8px] font-black text-sky-200 uppercase tracking-widest mb-1">LAUNDRY TODAY</p>
-            <p className="text-sm font-black text-white truncate drop-shadow-md uppercase tracking-tighter leading-tight mt-1">{laundryToday}</p>
+      <section className="space-y-2 sm:space-y-3 px-1 relative z-10">
+        <div className="flex gap-2 sm:gap-3">
+          <div className="flex-1 bg-gradient-to-br from-sky-600/30 to-indigo-600/10 backdrop-blur-xl p-3 sm:p-4 rounded-2xl sm:rounded-[32px] border border-sky-400/20 shadow-xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-2 sm:p-3 opacity-30 group-hover:opacity-100 transition-opacity text-xs sm:text-base">🧺</div>
+            <p className="text-[7px] sm:text-[8px] font-black text-sky-200 uppercase tracking-widest mb-1">LAUNDRY TODAY</p>
+            <p className="text-[11px] sm:text-sm font-black text-white truncate drop-shadow-md uppercase tracking-tighter leading-tight mt-1">{laundryToday}</p>
           </div>
           
-          <div className="flex-1 bg-gradient-to-br from-amber-600/30 to-rose-600/10 backdrop-blur-xl p-4 rounded-[32px] border border-amber-400/20 shadow-xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-3 opacity-30 group-hover:opacity-100 transition-opacity">🧹</div>
-            <p className="text-[8px] font-black text-amber-200 uppercase tracking-widest mb-1">CLEANING TODAY</p>
-            <p className="text-sm font-black text-white truncate drop-shadow-md uppercase tracking-tighter leading-tight mt-1">{cleanerToday}</p>
+          <div className="flex-1 bg-gradient-to-br from-amber-600/30 to-rose-600/10 backdrop-blur-xl p-3 sm:p-4 rounded-2xl sm:rounded-[32px] border border-amber-400/20 shadow-xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-2 sm:p-3 opacity-30 group-hover:opacity-100 transition-opacity text-xs sm:text-base">🧹</div>
+            <p className="text-[7px] sm:text-[8px] font-black text-amber-200 uppercase tracking-widest mb-1">CLEANING TODAY</p>
+            <p className="text-[11px] sm:text-sm font-black text-white truncate drop-shadow-md uppercase tracking-tighter leading-tight mt-1">{cleanerToday}</p>
           </div>
         </div>
 
         {/* Bin Out Section */}
-        <div className="w-full bg-gradient-to-r from-emerald-900/40 via-emerald-800/20 to-transparent glass p-5 rounded-[36px] border border-emerald-500/20 shadow-xl">
+        <div className="w-full bg-gradient-to-r from-emerald-900/40 via-emerald-800/20 to-transparent glass p-4 sm:p-5 rounded-[24px] sm:rounded-[36px] border border-emerald-500/20 shadow-xl">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl shadow-inner border border-emerald-500/10">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl sm:text-2xl shadow-inner border border-emerald-500/10">
                 ♻️
               </div>
               <div>
-                <p className="text-[8px] font-black text-emerald-400 uppercase tracking-[0.2em]">NEXT BIN DAY</p>
-                <h3 className="text-[13px] font-black text-white uppercase tracking-tighter leading-tight">
+                <p className="text-[7px] sm:text-[8px] font-black text-emerald-400 uppercase tracking-[0.2em]">NEXT BIN DAY</p>
+                <h3 className="text-[11px] sm:text-[13px] font-black text-white uppercase tracking-tighter leading-tight">
                   {nextWed.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
                 </h3>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-[8px] font-black text-emerald-500/60 uppercase mb-0.5">RESPONSIBLE</p>
-              <p className="text-base font-black text-white uppercase italic tracking-tighter drop-shadow-lg">
+              <p className="text-[7px] sm:text-[8px] font-black text-emerald-500/60 uppercase mb-0.5">RESPONSIBLE</p>
+              <p className="text-sm sm:text-base font-black text-white uppercase italic tracking-tighter drop-shadow-lg">
                 {binResponsible}
               </p>
             </div>
@@ -207,29 +207,29 @@ const HomeView: React.FC<HomeViewProps> = ({ roommates, bills, overrides, onUpda
 
       {/* RENT REMINDER - RED BACKGROUND & ANIMATED, BIN OUT STYLE */}
       <section className="px-1 relative z-10">
-        <div className={`w-full bg-gradient-to-r from-rose-600 via-red-500 to-rose-600 animate-gradient p-5 rounded-[36px] border border-white/30 shadow-[0_20px_40px_rgba(225,29,72,0.4)] transition-all duration-700 ${isRentUrgent ? 'opacity-100 scale-100' : 'opacity-40 grayscale blur-[1px]'}`}>
+        <div className={`w-full bg-gradient-to-r from-rose-600 via-red-500 to-rose-600 animate-gradient p-4 sm:p-5 rounded-[24px] sm:rounded-[36px] border border-white/30 shadow-[0_20px_40px_rgba(225,29,72,0.4)] transition-all duration-700 ${isRentUrgent ? 'opacity-100 scale-100' : 'opacity-40 grayscale blur-[1px]'}`}>
           <div className="flex justify-between items-center relative z-10">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-white/20 text-white flex items-center justify-center text-2xl shadow-inner border border-white/30 animate-pulse">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/20 text-white flex items-center justify-center text-xl sm:text-2xl shadow-inner border border-white/30 animate-pulse">
                 💸
               </div>
               <div>
-                <p className="text-[8px] font-black text-white uppercase tracking-[0.2em] drop-shadow-md">RENT REMINDER</p>
-                <h3 className="text-[13px] font-black text-white uppercase tracking-tighter leading-tight drop-shadow-lg">
+                <p className="text-[7px] sm:text-[8px] font-black text-white uppercase tracking-[0.2em] drop-shadow-md">RENT REMINDER</p>
+                <h3 className="text-[11px] sm:text-[13px] font-black text-white uppercase tracking-tighter leading-tight drop-shadow-lg">
                   Due: {formattedRentDate.toUpperCase()}
                 </h3>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-[8px] font-black text-white/70 uppercase mb-0.5 tracking-widest">PAY TO MAMUN</p>
-              <p className="text-2xl font-black text-white uppercase italic tracking-tighter drop-shadow-2xl">
+              <p className="text-[7px] sm:text-[8px] font-black text-white/70 uppercase mb-0.5 tracking-widest">PAY TO MAMUN</p>
+              <p className="text-xl sm:text-2xl font-black text-white uppercase italic tracking-tighter drop-shadow-2xl">
                 $3,000
               </p>
             </div>
           </div>
         </div>
         {isRentUrgent && (
-          <p className="text-center text-[7px] font-black text-rose-500 uppercase tracking-[0.6em] mt-3 animate-pulse">
+          <p className="text-center text-[6px] sm:text-[7px] font-black text-rose-500 uppercase tracking-[0.4em] sm:tracking-[0.6em] mt-3 animate-pulse">
             •• URGENT ACTION REQUIRED ••
           </p>
         )}

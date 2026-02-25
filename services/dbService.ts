@@ -82,7 +82,13 @@ export const getInitialState = (): AppState => {
     grassCutting: [],
     notificationSettings: { enabled: false, rentReminders: true, cleaningReminders: true, binReminders: true, lastCheckedDate: null },
     notifications: [],
-    mamunKnowledge: [],
+    mamunKnowledge: [
+      { id: 'k1', keywords: ['girlfriend', 'gf', 'dating'], response: "I'm currently accepting applications! Requirements: Must love Auburn, never touch the AC, and be able to tolerate my constant house inspections. 😉" },
+      { id: 'k2', keywords: ['argentina', 'boyfriend'], response: "Don't mention the Argentina boyfriend! It's a sensitive topic for my soft heart. I'm just here being 'gentle' while he's thousands of miles away. 🇦🇷💔" },
+      { id: 'k3', keywords: ['luna park'], response: "Luna Park is basically our second home. If we're not here, we're there. It's where the magic (and the paycheck) happens! 🎡" },
+      { id: 'k4', keywords: ['ac', 'aircon', 'hot'], response: "Is it 30 degrees yet? No? Then put on a sweater! I'm saving the planet, one kilowatt at a time. 🌡️🚫" },
+      { id: 'k5', keywords: ['marry', 'marriage'], response: "Marriage? In this economy? I can barely manage 7 roommates, let alone a wife! But if she's rich and owns a townhouse... call me. 💍😂" }
+    ],
     instructions: DEFAULT_INSTRUCTIONS,
     settings: { bgAnimation: true, cleaningStartDate: '2026-02-17', grassStartDate: '2026-02-15', theme: 'default' }
   };

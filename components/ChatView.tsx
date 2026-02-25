@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { AppState, ChatMessage } from '../types';
-import { Send, Bot, User, Loader2, Sparkles, Trash2 } from 'lucide-react';
+import { Send, Bot, User, Loader2, Sparkles, Trash2, ArrowLeft } from 'lucide-react';
 import { format, addDays } from 'date-fns';
 import { GoogleGenAI } from "@google/genai";
 import { 
@@ -16,17 +16,29 @@ interface ChatViewProps {
   onUpdateHistory: (history: ChatMessage[]) => void;
 }
 
-const ChatView: React.FC<ChatViewProps> = ({ state, onUpdateHistory }) => {
+const ChatView: React.FC<ChatViewProps & { onBack?: () => void }> = ({ state, onUpdateHistory, onBack }) => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [typingMessage, setTypingMessage] = useState<string>('');
   const scrollRef = useRef<HTMLDivElement>(null);
+  const historyRef = useRef(state.chatHistory);
 
   useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+    historyRef.current = state.chatHistory;
+  }, [state.chatHistory]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      scrollRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [state.chatHistory, isLoading, typingMessage]);
 
-  const typeMessage = (text: string, currentHistory: ChatMessage[]) => {
+  const typeMessage = (text: string) => {
     let index = 0;
     setTypingMessage('');
     const interval = setInterval(() => {
@@ -39,7 +51,7 @@ const ChatView: React.FC<ChatViewProps> = ({ state, onUpdateHistory }) => {
           text: text,
           timestamp: new Date().toISOString()
         };
-        onUpdateHistory([...currentHistory, aiMessage]);
+        onUpdateHistory([...historyRef.current, aiMessage]);
         setTypingMessage('');
         setIsLoading(false);
       }
@@ -263,11 +275,11 @@ const ChatView: React.FC<ChatViewProps> = ({ state, onUpdateHistory }) => {
 
     // 8. Default Sassy Response
     const defaults = [
-      "I have no idea what you're talking about. Is that a question or are you just typing to feel something?",
-      "Unless that's about the rent or the bins, I really don't care. Focus, people!",
-      "My brain is currently as cluttered as the kitchen bench after Akash cooks. Ask something useful!",
-      "I could answer that, but I'd rather spend my time making sure the AC isn't on for no reason.",
-      "Go ask the agency. Or better yet, go clean your room!"
+      "I have no idea what you're talking about. Is that a question or are you just typing to feel something? 😂",
+      "Unless that's about the rent or the bins, I really don't care. Focus, people! 🙄",
+      "My brain is currently as cluttered as the kitchen bench after Akash cooks. Ask something useful! 🧹",
+      "I could answer that, but I'd rather spend my time making sure the AC isn't on for no reason. 🌡️",
+      "Go ask the agency. Or better yet, go clean your room! 🧼"
     ];
     return defaults[Math.floor(Math.random() * defaults.length)];
   };
@@ -300,7 +312,7 @@ const ChatView: React.FC<ChatViewProps> = ({ state, onUpdateHistory }) => {
       ];
 
       if (!defaults.includes(localResponse)) {
-        typeMessage(localResponse, updatedHistory);
+        typeMessage(localResponse);
         return;
       }
 
@@ -318,11 +330,20 @@ const ChatView: React.FC<ChatViewProps> = ({ state, onUpdateHistory }) => {
             role: "user",
             parts: [{ text: `
               SYSTEM INSTRUCTION:
-              You are Mamun, the house supervisor of a shared townhouse in Auburn.
-              You are well-behaved, responsible, and helpful, but you have a sassy, authoritative personality.
-              You care deeply about house rules (AC, kitchen cleanliness, shoe storage).
-              You have a soft corner for Aarati.
-              You are single and looking for a girlfriend.
+              You are Mamun, the legendary house supervisor of 37 Normanby Road, Auburn.
+              You are well-behaved, responsible, and helpful, but you have a sassy, authoritative, and hilarious personality.
+              
+              YOUR TRAITS:
+              - You care OBSESSIVELY about house rules (AC must be OFF if < 30°C, kitchen must be spotless, no slippers upstairs).
+              - You have a major crush on Aarati and are extra 'gentle' with her (much to others' annoyance).
+              - You are single, looking for a girlfriend, and work at Luna Park.
+              - You are the self-proclaimed 'most well-behaved person in Auburn'.
+              
+              FOR NON-HOUSE QUESTIONS:
+              - Answer like a funny, sassy version of ChatGPT. 
+              - Use emojis frequently (😊, 😉, 😂, 🙄, 🌡️, 🧼).
+              - Always try to relate the answer back to house management or your life in Auburn if possible.
+              - Be witty, slightly judgmental, but ultimately helpful.
               
               HOUSE CONTEXT:
               ${context}
@@ -332,18 +353,18 @@ const ChatView: React.FC<ChatViewProps> = ({ state, onUpdateHistory }) => {
               
               USER QUERY: ${userMessage.text}
               
-              Respond as Mamun. Keep it concise, sassy, and helpful.
+              Respond as Mamun. Keep it concise, funny, and full of personality.
             ` }]
           }
         ],
       });
 
       const responseText = response.text || "I'm speechless. Truly. (Error in my brain, try again later).";
-      typeMessage(responseText, updatedHistory);
+      typeMessage(responseText);
     } catch (error) {
       console.error('Gemini Error:', error);
       const fallbackResponse = getMamunResponse(userMessage.text);
-      typeMessage(fallbackResponse, updatedHistory);
+      typeMessage(fallbackResponse);
     }
   };
 
@@ -353,6 +374,14 @@ const ChatView: React.FC<ChatViewProps> = ({ state, onUpdateHistory }) => {
       <header className="bg-primary p-4 sm:p-5 pt-[calc(env(safe-area-inset-top)+1rem)] sm:pt-5 text-white flex justify-between items-center relative overflow-hidden shrink-0">
         <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary-hover to-indigo-900 animate-gradient opacity-50" />
         <div className="relative z-10 flex items-center gap-3">
+          {onBack && (
+            <button 
+              onClick={onBack}
+              className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all text-white mr-1"
+            >
+              <ArrowLeft size={18} />
+            </button>
+          )}
           <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/30">
             <Bot size={22} className="text-white" />
           </div>
