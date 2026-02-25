@@ -846,7 +846,7 @@ const App: React.FC = () => {
         </div>
       </nav>
 
-      <main className={`flex-grow lg:ml-64 relative transition-all overflow-x-hidden ${isFullScreenView ? 'p-0 max-w-none' : 'p-2 sm:p-6 md:p-12 pt-4 sm:pt-6 md:pt-12 max-w-7xl mx-auto'}`}>
+      <main className={`flex-grow lg:ml-64 relative transition-all overflow-x-hidden ${isFullScreenView ? 'p-0 max-w-none' : 'p-2 sm:p-6 md:p-12 pt-[calc(env(safe-area-inset-top)+1rem)] sm:pt-6 md:pt-12 max-w-7xl mx-auto'}`}>
         {!isFullScreenView && activeView !== 'dashboard' && (
           <div className="flex justify-between items-center mb-6 min-h-[48px]">
              {!isSidebarOpen && (
