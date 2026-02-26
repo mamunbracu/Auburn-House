@@ -10,7 +10,7 @@ import {
   addDays
 } from 'date-fns';
 import { 
-  Home, DollarSign, CreditCard, Scissors, Settings as SettingsIcon, Plus, X, MapPin, ArrowLeft, Sparkles, Droplets, Trash2, Save, Moon, Sun, Leaf, Flame, Menu, Edit2, ListChecks, Info, AlertCircle, Bot, Database, Bell, BellOff, Volume2, UserPlus, Mail, Phone, Cake, User, Trash, ArrowUpRight, Megaphone, Users, Calendar, Loader2, Cloud, Heart, ShieldCheck, Palette, Download
+  Home, DollarSign, CreditCard, Scissors, Settings as SettingsIcon, Plus, X, MapPin, ArrowLeft, Sparkles, Droplets, Trash2, Save, Moon, Sun, Leaf, Flame, Menu, Edit2, ListChecks, Info, AlertCircle, Bot, Database, Bell, BellOff, Volume2, UserPlus, Mail, Phone, Cake, User, Trash, ArrowUpRight, Megaphone, Users, Calendar, Loader2, Cloud, Heart, ShieldCheck, Palette, Download, RefreshCw
 } from 'lucide-react';
 import { AppState, ViewType, MemberName, BillItem, Member, BillPayment, MemberAdvanceDetails, AppTheme, ChoreOverride, ChatMessage, NotificationSettings, Notice, InstructionSection, AppNotification } from './types';
 import { MEMBERS, generateInitialRent, INITIAL_BILLS } from './constants';
@@ -835,7 +835,7 @@ const App: React.FC = () => {
         </div>
 
         {/* Fixed Footer - Subtle & Elegant */}
-        <div className="p-6 border-t dark:border-slate-800 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md shrink-0">
+        <div className="p-6 border-t dark:border-slate-800 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md shrink-0 flex items-center justify-between">
           <div className="flex items-center gap-3">
              <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
              <div className="flex flex-col">
@@ -843,6 +843,9 @@ const App: React.FC = () => {
                 <span className="text-[9px] font-bold text-slate-300 dark:text-slate-600 mt-0.5">Auburn Hub v1.4.2</span>
              </div>
           </div>
+          <button onClick={() => window.location.reload()} className="p-2 text-slate-400 hover:text-primary transition-colors" title="Reload App">
+            <RefreshCw size={16} />
+          </button>
         </div>
       </nav>
 
@@ -862,14 +865,23 @@ const App: React.FC = () => {
                </button>
              )}
              
-             {showBackButton && (
-                 <button 
-                    onClick={handleBackToAdmin}
-                    className="flex items-center gap-3 bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl transition-all hover:scale-105 active:scale-95 italic ml-auto animate-in slide-in-from-right duration-300"
-                 >
-                    <ArrowLeft size={16} /> Back to Command Center
-                 </button>
-             )}
+             <div className="flex items-center gap-3 ml-auto">
+               <button 
+                 onClick={() => window.location.reload()}
+                 className="p-3 bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-100 dark:border-slate-800 active:scale-90 transition-all z-[110] flex items-center justify-center text-slate-500 hover:text-primary"
+                 aria-label="Reload App"
+               >
+                 <RefreshCw size={20} />
+               </button>
+               {showBackButton && (
+                   <button 
+                      onClick={handleBackToAdmin}
+                      className="flex items-center gap-3 bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl transition-all hover:scale-105 active:scale-95 italic animate-in slide-in-from-right duration-300"
+                   >
+                      <ArrowLeft size={16} /> <span className="hidden sm:inline">Back to Command Center</span>
+                   </button>
+               )}
+             </div>
           </div>
         )}
 
@@ -921,17 +933,26 @@ const App: React.FC = () => {
                          </p>
                        </div>
                      </div>
-                     <button 
-                       onClick={() => setIsNotificationOpen(true)}
-                       className="relative w-10 h-10 sm:w-14 sm:h-14 md:w-20 md:h-20 lg:w-24 lg:h-24 bg-white/10 backdrop-blur-xl rounded-xl sm:rounded-3xl flex items-center justify-center border border-white/20 hover:bg-white/20 transition-all group shrink-0 ml-2 shadow-xl hover:shadow-2xl hover:-translate-y-1"
-                     >
-                       <Bell size={18} className="sm:w-6 md:w-8 lg:w-10 text-white group-hover:rotate-12 transition-transform" />
-                       {(state.notifications || []).filter(n => !n.isRead).length > 0 && (
-                         <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 bg-rose-500 text-white text-[8px] sm:text-[10px] md:text-xs font-black rounded-full flex items-center justify-center border-2 border-primary shadow-lg animate-bounce">
-                           {(state.notifications || []).filter(n => !n.isRead).length}
-                         </div>
-                       )}
-                     </button>
+                     <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+                       <button 
+                         onClick={() => window.location.reload()}
+                         className="relative w-10 h-10 sm:w-14 sm:h-14 md:w-20 md:h-20 lg:w-24 lg:h-24 bg-white/10 backdrop-blur-xl rounded-xl sm:rounded-3xl flex items-center justify-center border border-white/20 hover:bg-white/20 transition-all group shrink-0 shadow-xl hover:shadow-2xl hover:-translate-y-1"
+                         aria-label="Reload App"
+                       >
+                         <RefreshCw size={18} className="sm:w-6 md:w-8 lg:w-10 text-white group-hover:rotate-180 transition-transform duration-500" />
+                       </button>
+                       <button 
+                         onClick={() => setIsNotificationOpen(true)}
+                         className="relative w-10 h-10 sm:w-14 sm:h-14 md:w-20 md:h-20 lg:w-24 lg:h-24 bg-white/10 backdrop-blur-xl rounded-xl sm:rounded-3xl flex items-center justify-center border border-white/20 hover:bg-white/20 transition-all group shrink-0 shadow-xl hover:shadow-2xl hover:-translate-y-1"
+                       >
+                         <Bell size={18} className="sm:w-6 md:w-8 lg:w-10 text-white group-hover:rotate-12 transition-transform" />
+                         {(state.notifications || []).filter(n => !n.isRead).length > 0 && (
+                           <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 bg-rose-500 text-white text-[8px] sm:text-[10px] md:text-xs font-black rounded-full flex items-center justify-center border-2 border-primary shadow-lg animate-bounce">
+                             {(state.notifications || []).filter(n => !n.isRead).length}
+                           </div>
+                         )}
+                       </button>
+                     </div>
                    </div>
                  </header>
                  <MemberStrip onMemberClick={(n) => { setSelectedMember(state.members.find(m => m.name === n) || null); setActiveView('profile'); setIsEditingProfile(false); }} />

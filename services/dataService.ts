@@ -1,5 +1,5 @@
 
-import { MEMBERS } from '../constants';
+import { MEMBERS, TOTAL_FORTNIGHTLY_RENT } from '../constants';
 import { ChoreOverride } from '../types';
 import { format, differenceInCalendarWeeks, differenceInCalendarDays } from 'date-fns';
 
@@ -98,13 +98,16 @@ export const getBinAssignment = (date: Date, overrides: ChoreOverride[]) => {
 };
 
 export const getRentSchedule = (count: number) => {
-  const schedule: Date[] = [];
+  const schedule: { date: Date; amount: number }[] = [];
   let current = new Date(2026, 1, 15); 
   while (current.getDay() !== 0) {
     current.setDate(current.getDate() + 1);
   }
   for (let i = 0; i < count; i++) {
-    schedule.push(new Date(current));
+    schedule.push({
+      date: new Date(current),
+      amount: TOTAL_FORTNIGHTLY_RENT
+    });
     current.setDate(current.getDate() + 14);
   }
   return schedule;
