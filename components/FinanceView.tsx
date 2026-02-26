@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { Member, BillItem, MemberName, BillPayment } from '../types';
 import { getRentSchedule } from '../services/dataService';
-import { format } from 'date-fns';
+import { format, differenceInDays } from 'date-fns';
 import { 
   Receipt, 
   PieChart, 
@@ -65,7 +65,10 @@ const FinanceView: React.FC<FinanceViewProps> = ({
     amount: '',
     description: '',
     month: format(new Date(), 'MMMM'),
-    paidBy: roommates[0]?.name || '' as MemberName
+    paidBy: (roommates[0]?.name || 'Not Paid Yet') as MemberName | 'Not Paid Yet',
+    billingPeriodStart: format(new Date(), 'yyyy-MM-dd'),
+    billingPeriodEnd: format(new Date(), 'yyyy-MM-dd'),
+    memberStayPeriods: roommates.reduce((acc, r) => ({ ...acc, [r.name]: { start: format(new Date(), 'yyyy-MM-dd'), end: format(new Date(), 'yyyy-MM-dd') } }), {} as Record<string, { start: string, end: string }>)
   });
 
   const rentDates = useMemo(() => getRentSchedule(12), []);
@@ -85,8 +88,11 @@ const FinanceView: React.FC<FinanceViewProps> = ({
           category: formData.category,
           totalAmount: parseFloat(formData.amount),
           description: formData.description,
-          paidBy: formData.paidBy as MemberName,
-          month: formData.month
+          paidBy: formData.paidBy as MemberName | 'Not Paid Yet',
+          month: formData.month,
+          billingPeriodStart: formData.billingPeriodStart,
+          billingPeriodEnd: formData.billingPeriodEnd,
+          memberStayPeriods: formData.memberStayPeriods
         });
       }
     } else {
@@ -99,7 +105,10 @@ const FinanceView: React.FC<FinanceViewProps> = ({
         memberFinances: {} as any,
         isFinalized: false,
         description: formData.description,
-        paidBy: formData.paidBy as MemberName
+        paidBy: formData.paidBy as MemberName | 'Not Paid Yet',
+        billingPeriodStart: formData.billingPeriodStart,
+        billingPeriodEnd: formData.billingPeriodEnd,
+        memberStayPeriods: formData.memberStayPeriods
       });
     }
     setShowAdd(false);
@@ -113,7 +122,10 @@ const FinanceView: React.FC<FinanceViewProps> = ({
       amount: bill.totalAmount.toString(),
       description: bill.description || '',
       month: bill.month,
-      paidBy: bill.paidBy
+      paidBy: bill.paidBy,
+      billingPeriodStart: bill.billingPeriodStart || format(new Date(), 'yyyy-MM-dd'),
+      billingPeriodEnd: bill.billingPeriodEnd || format(new Date(), 'yyyy-MM-dd'),
+      memberStayPeriods: bill.memberStayPeriods || roommates.reduce((acc, r) => ({ ...acc, [r.name]: { start: format(new Date(), 'yyyy-MM-dd'), end: format(new Date(), 'yyyy-MM-dd') } }), {} as Record<string, { start: string, end: string }>)
     });
     setEditingBillId(bill.id);
     setShowAdd(true);
@@ -168,7 +180,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({
     } else if (val === 'Split') {
       const amt = parseFloat(calcDisplay);
       if (!isNaN(amt) && amt > 0) {
-        const split = (amt / 8).toFixed(2);
+        const split = (amt / roommates.length).toFixed(2);
         setCalcHistory(prev => [{ amount: amt.toString(), split, timestamp: format(new Date(), 'HH:mm') }, ...prev.slice(0, 4)]);
         setCalcDisplay(split);
         setResetDisplay(true);
@@ -177,6 +189,27 @@ const FinanceView: React.FC<FinanceViewProps> = ({
       if (resetDisplay) { setCalcDisplay(val === '.' ? '0.' : val); setResetDisplay(false); }
       else { if (val === '.' && calcDisplay.includes('.')) return; setCalcDisplay(prev => (prev === '0' && val !== '.' ? val : prev + val)); }
     }
+  };
+
+  const calculateMemberShare = (bill: BillItem, memberName: string) => {
+    if (!bill.billingPeriodStart || !bill.billingPeriodEnd || !bill.memberStayPeriods) {
+      return bill.totalAmount / roommates.length;
+    }
+    
+    let totalStayDays = 0;
+    let memberStayDays = 0;
+    
+    for (const [name, period] of Object.entries(bill.memberStayPeriods)) {
+      const days = Math.max(0, differenceInDays(new Date(period.end), new Date(period.start)) + 1);
+      totalStayDays += days;
+      if (name === memberName) {
+        memberStayDays = days;
+      }
+    }
+    
+    if (totalStayDays === 0) return bill.totalAmount / roommates.length;
+    
+    return (memberStayDays / totalStayDays) * bill.totalAmount;
   };
 
   return (
@@ -193,9 +226,9 @@ const FinanceView: React.FC<FinanceViewProps> = ({
         />
       )}
 
-      <div className="flex p-1 bg-slate-900/90 rounded-[2.5rem] border border-white/5 shadow-2xl overflow-x-auto no-scrollbar">
+      <div className="flex p-1 bg-slate-900/90 rounded-[1rem] sm:rounded-[2.5rem] border border-white/5 shadow-2xl overflow-x-auto no-scrollbar flex-nowrap sm:flex-wrap">
         {(['ledger', 'expenses', 'rent', 'calc', 'history'] as const).map((t) => (
-          <button key={t} onClick={() => setView(t)} className={`flex-1 py-3.5 px-6 text-[10px] font-black uppercase rounded-[2rem] transition-all flex items-center justify-center gap-2 whitespace-nowrap ${view === t ? 'bg-primary text-white shadow-xl scale-[1.02]' : 'text-slate-500 hover:text-slate-400'}`}>
+          <button key={t} onClick={() => setView(t)} className={`flex-1 min-w-[100px] py-3.5 px-4 sm:px-6 text-[10px] font-black uppercase rounded-[2rem] transition-all flex items-center justify-center gap-2 whitespace-nowrap shrink-0 ${view === t ? 'bg-primary text-white shadow-xl scale-[1.02]' : 'text-slate-500 hover:text-slate-400'}`}>
             {t === 'ledger' ? <Receipt size={14} /> : t === 'expenses' ? <PieChart size={14} /> : t === 'rent' ? <Calendar size={14} /> : t === 'calc' ? <Calculator size={14} /> : <History size={14} />}
             <span className="italic">{t === 'ledger' ? 'Current' : t === 'expenses' ? 'Tracker' : t === 'rent' ? 'Rent' : t === 'calc' ? 'Calc' : 'History'}</span>
           </button>
@@ -215,8 +248,8 @@ const FinanceView: React.FC<FinanceViewProps> = ({
           </header>
 
           {showAdd && (
-            <form onSubmit={handleAddEditAttempt} className="bg-white dark:bg-slate-900 p-8 rounded-[3rem] border border-primary/10 shadow-2xl space-y-5 animate-in zoom-in-95">
-              <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={handleAddEditAttempt} className="bg-white dark:bg-slate-900 p-4 sm:p-8 rounded-[2rem] sm:rounded-[3rem] border border-primary/10 shadow-2xl space-y-4 sm:space-y-5 animate-in zoom-in-95">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <select value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value as any})} className="bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-4 py-4 text-xs font-bold outline-none dark:text-white italic appearance-none">
                   {['Electricity', 'Water', 'Gas', 'Internet', 'Other'].map(cat => <option key={cat} value={cat}>{cat}</option>)}
                 </select>
@@ -224,12 +257,43 @@ const FinanceView: React.FC<FinanceViewProps> = ({
                   {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map(m => <option key={m} value={m}>{m}</option>)}
                 </select>
               </div>
+              
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                <div className="space-y-1">
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-2">Billing Start</label>
+                  <input type="date" value={formData.billingPeriodStart} onChange={(e) => setFormData({...formData, billingPeriodStart: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-4 py-4 text-xs font-bold outline-none dark:text-white italic" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-2">Billing End</label>
+                  <input type="date" value={formData.billingPeriodEnd} onChange={(e) => setFormData({...formData, billingPeriodEnd: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-4 py-4 text-xs font-bold outline-none dark:text-white italic" />
+                </div>
+              </div>
+
               <input type="number" value={formData.amount} onChange={(e) => setFormData({...formData, amount: e.target.value})} placeholder="Total Amount ($)" className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-6 py-4 text-lg font-black text-primary shadow-inner outline-none italic" />
-              <select value={formData.paidBy} onChange={(e) => setFormData({...formData, paidBy: e.target.value as MemberName})} className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-4 py-4 text-xs font-bold outline-none dark:text-white italic appearance-none">
+              
+              <select value={formData.paidBy} onChange={(e) => setFormData({...formData, paidBy: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-4 py-4 text-xs font-bold outline-none dark:text-white italic appearance-none">
+                <option value="Not Paid Yet">Not Paid Yet</option>
                 {roommates.map(r => <option key={r.id} value={r.name}>{r.name}</option>)}
               </select>
+              
               <input type="text" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} placeholder="Optional description" className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-6 py-4 text-xs font-bold outline-none dark:text-white shadow-inner italic" />
-              <button type="submit" className="w-full py-5 bg-primary rounded-3xl font-black text-xs text-white uppercase tracking-widest shadow-xl active:scale-95 transition-all">
+              
+              <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 px-2">Resident Stay Periods</h4>
+                <div className="space-y-3">
+                  {roommates.map(r => (
+                    <div key={r.id} className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl">
+                      <div className="font-black text-xs uppercase italic text-slate-700 dark:text-slate-300 pl-2">{r.name}</div>
+                      <div className="flex gap-2 sm:col-span-2">
+                        <input type="date" value={formData.memberStayPeriods[r.name]?.start || formData.billingPeriodStart} onChange={(e) => setFormData({...formData, memberStayPeriods: {...formData.memberStayPeriods, [r.name]: {...formData.memberStayPeriods[r.name], start: e.target.value}}})} className="w-full bg-white dark:bg-slate-900 border-none rounded-xl px-2 py-2 text-[10px] font-bold outline-none dark:text-white italic" />
+                        <input type="date" value={formData.memberStayPeriods[r.name]?.end || formData.billingPeriodEnd} onChange={(e) => setFormData({...formData, memberStayPeriods: {...formData.memberStayPeriods, [r.name]: {...formData.memberStayPeriods[r.name], end: e.target.value}}})} className="w-full bg-white dark:bg-slate-900 border-none rounded-xl px-2 py-2 text-[10px] font-bold outline-none dark:text-white italic" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <button type="submit" className="w-full py-5 bg-primary rounded-3xl font-black text-xs text-white uppercase tracking-widest shadow-xl active:scale-95 transition-all mt-4">
                 {editingBillId ? 'Update Utility Record' : 'Commit & Split Bill'}
               </button>
             </form>
@@ -316,13 +380,33 @@ const FinanceView: React.FC<FinanceViewProps> = ({
           <header><h2 className="text-2xl font-black text-slate-800 dark:text-white italic uppercase tracking-tighter">Net Debt Summary</h2></header>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {roommates.map(member => {
-              const remaining = bills.reduce((sum, b) => b.paidBy === member.name ? sum : sum + (b.totalAmount / roommates.length), 0) - payments.filter(p => p.memberId === member.name).reduce((sum, p) => sum + p.amount, 0);
+              const remaining = bills.reduce((sum, b) => {
+                if (b.paidBy === member.name) return sum;
+                if (b.paidBy === 'Not Paid Yet') return sum + calculateMemberShare(b, member.name);
+                return sum + calculateMemberShare(b, member.name);
+              }, 0) - payments.filter(p => p.memberId === member.name).reduce((sum, p) => sum + p.amount, 0);
+              
+              // If the member paid for bills, we should subtract the amount others owe them from their debt
+              // Wait, the current logic is:
+              // Debt = (sum of their share in bills they didn't pay) - (payments they made)
+              // But if they paid a bill, others owe them. So their debt should be reduced by what others owe them.
+              // Let's refine the net debt calculation:
+              // Net Debt = (Total of their shares across ALL bills) - (Total they paid for bills) - (Total payments they made to others) + (Total payments others made to them)
+              // Actually, simpler:
+              // Total Owed By Member = sum of their shares in all bills
+              // Total Paid By Member = sum of (bill.totalAmount if they paid it) + sum of (payments they made)
+              // Net Debt = Total Owed By Member - Total Paid By Member
+              
+              const totalOwed = bills.reduce((sum, b) => sum + calculateMemberShare(b, member.name), 0);
+              const totalPaid = bills.reduce((sum, b) => b.paidBy === member.name ? sum + b.totalAmount : sum, 0) + payments.filter(p => p.memberId === member.name).reduce((sum, p) => sum + p.amount, 0);
+              const netDebt = totalOwed - totalPaid;
+
               return (
                 <button key={member.id} onClick={() => setActiveMemberId(member.id)} className="bg-white dark:bg-slate-900 p-8 rounded-[3rem] border border-slate-100 dark:border-slate-800 flex items-center justify-between transition-all hover:shadow-2xl">
                   <div className="flex items-center gap-5"><img src={member.avatar} className="w-16 h-16 rounded-[2rem] object-cover border-4 border-slate-50 dark:border-slate-800 shadow-md" /><div><p className="font-black text-slate-800 dark:text-white uppercase text-base italic tracking-tighter">{member.name}</p></div></div>
-                  <div className={`text-right px-6 py-4 rounded-3xl flex items-center gap-3 ${remaining <= 0.1 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
-                    {remaining <= 0.1 ? <Check size={18} strokeWidth={3} /> : <ArrowUpRight size={18} strokeWidth={3} />}
-                    <span className="font-black tracking-tighter text-2xl italic">${Math.abs(remaining).toFixed(1)}</span>
+                  <div className={`text-right px-6 py-4 rounded-3xl flex items-center gap-3 ${netDebt <= 0.1 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+                    {netDebt <= 0.1 ? <Check size={18} strokeWidth={3} /> : <ArrowUpRight size={18} strokeWidth={3} />}
+                    <span className="font-black tracking-tighter text-2xl italic">${Math.abs(netDebt).toFixed(1)}</span>
                   </div>
                 </button>
               );
@@ -338,13 +422,15 @@ const FinanceView: React.FC<FinanceViewProps> = ({
             <div className="flex-1 overflow-y-auto no-scrollbar">
               {bills.map(bill => {
                 if (bill.paidBy === roommates.find(r => r.id === activeMemberId)?.name) return null;
-                const split = bill.totalAmount / roommates.length;
-                const paid = payments.some(p => p.billId === bill.id && p.memberId === roommates.find(r => r.id === activeMemberId)?.name);
+                const activeMemberName = roommates.find(r => r.id === activeMemberId)?.name || '';
+                const split = calculateMemberShare(bill, activeMemberName);
+                if (split <= 0) return null; // Skip if they don't owe anything for this bill
+                const paid = payments.some(p => p.billId === bill.id && p.memberId === activeMemberName);
                 return (
                   <div key={bill.id} className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 flex justify-between items-center mb-4">
                     <div><p className="font-black text-slate-800 dark:text-white uppercase italic text-sm tracking-tight">{bill.category}</p><p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{bill.month}</p></div>
                     <div className="flex items-center gap-6"><span className="text-xl font-black text-slate-800 dark:text-slate-100 italic tracking-tighter">${split.toFixed(1)}</span>
-                      <button onClick={() => handleTogglePaymentAttempt(bill.id, roommates.find(r => r.id === activeMemberId)!.name, split)} className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all ${paid ? 'bg-emerald-500 text-white shadow-lg' : 'bg-white dark:bg-slate-700 text-slate-300 shadow-sm'}`}><Check size={18} strokeWidth={3} /></button>
+                      <button onClick={() => handleTogglePaymentAttempt(bill.id, activeMemberName, split)} className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all ${paid ? 'bg-emerald-500 text-white shadow-lg' : 'bg-white dark:bg-slate-700 text-slate-300 shadow-sm'}`}><Check size={18} strokeWidth={3} /></button>
                     </div>
                   </div>
                 );

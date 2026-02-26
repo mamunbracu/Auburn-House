@@ -71,8 +71,11 @@ export interface BillItem {
   dueDate: string;
   memberFinances: Record<string, BillMemberFinance>;
   isFinalized: boolean; 
-  paidBy: MemberName; 
+  paidBy: MemberName | 'Not Paid Yet'; 
   description?: string;
+  billingPeriodStart?: string;
+  billingPeriodEnd?: string;
+  memberStayPeriods?: Record<string, { start: string, end: string }>;
 }
 
 export interface CommonExpense {
