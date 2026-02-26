@@ -356,9 +356,12 @@ const App: React.FC = () => {
 
   useEffect(() => {
     // Socket.io for local dev
-    socketRef.current = io({
+    socketRef.current = io(window.location.origin, {
       path: '/socket.io/',
-      transports: ['websocket', 'polling']
+      transports: ['polling', 'websocket'], // Try polling first for better proxy compatibility
+      reconnection: true,
+      reconnectionAttempts: 5,
+      timeout: 10000,
     });
 
     socketRef.current.on('connect', () => {

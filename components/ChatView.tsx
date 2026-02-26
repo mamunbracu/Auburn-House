@@ -371,7 +371,7 @@ const ChatView: React.FC<ChatViewProps & { onBack?: () => void }> = ({ state, on
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] md:h-[calc(100vh-1rem)] w-full bg-white dark:bg-slate-900 border-x border-slate-100 dark:border-slate-800 shadow-2xl overflow-hidden animate-in fade-in duration-300">
       {/* Header - Compact */}
-      <header className="bg-primary p-4 sm:p-5 pt-[calc(env(safe-area-inset-top)+1rem)] sm:pt-5 text-white flex justify-between items-center relative overflow-hidden shrink-0">
+      <header className="bg-primary p-4 sm:p-5 pt-[calc(env(safe-area-inset-top)+1rem)] sm:pt-5 text-white flex justify-between items-center sticky top-0 z-50 overflow-hidden shrink-0 shadow-lg">
         <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary-hover to-indigo-900 animate-gradient opacity-50" />
         <div className="relative z-10 flex items-center gap-3">
           {onBack && (

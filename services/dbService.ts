@@ -120,16 +120,22 @@ export const database = {
       // Try Supabase first (for Vercel/Production)
       if (supabaseService.isEnabled()) {
         try {
-          const cloudState = await supabaseService.loadState();
+          // Race Supabase load against a 3s timeout
+          const supabasePromise = supabaseService.loadState();
+          const timeoutPromise = new Promise<null>((_, reject) => 
+            setTimeout(() => reject(new Error('Supabase timeout')), 3000)
+          );
+          
+          const cloudState = await Promise.race([supabasePromise, timeoutPromise]);
           if (cloudState) return sanitizeState(cloudState);
         } catch (err) {
-          console.error('Supabase: Load failed, falling back to local API', err);
+          console.error('Supabase: Load failed or timed out, falling back to local API', err);
         }
       }
 
       // Fallback to local API
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+      const timeoutId = setTimeout(() => controller.abort(), 2000); // Reduced to 2s timeout
 
       const response = await fetch('/api/state', { signal: controller.signal });
       clearTimeout(timeoutId);

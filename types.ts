@@ -27,6 +27,7 @@ export interface ChoreOverride {
   date: string;
   type: 'Laundry' | 'Cleaning' | 'Grass' | 'Bins';
   member: string;
+  notes?: string;
 }
 
 export interface ChatMessage {
@@ -65,7 +66,7 @@ export interface BillPayment {
 
 export interface BillItem {
   id: string;
-  category: 'Gas' | 'Electricity' | 'Water' | 'Internet' | 'Other';
+  category: string;
   month: string;
   totalAmount: number;
   dueDate: string;

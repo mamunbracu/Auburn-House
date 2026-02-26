@@ -49,53 +49,97 @@ const PlanView: React.FC<PlanViewProps> = ({ roommates, overrides, onAddOverride
   }, [timeline]);
 
   const handleEdit = (date: Date, type: ChoreOverride['type'], currentMember: string) => {
+    let selectedMember = currentMember;
+
     const overlay = document.createElement('div');
     overlay.className = "fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-4 sm:p-6 animate-in fade-in";
     
     const container = document.createElement('div');
-    container.className = "bg-white p-6 rounded-[2.5rem] w-full max-w-xs border border-slate-100 shadow-2xl animate-in zoom-in-95";
+    container.className = "bg-white p-6 rounded-[2.5rem] w-full max-w-xs border border-slate-100 shadow-2xl animate-in zoom-in-95 max-h-[90vh] overflow-y-auto no-scrollbar";
     
     const title = document.createElement('h3');
     title.className = "text-sm font-black text-slate-800 uppercase mb-4 tracking-widest text-center italic";
     title.innerText = `Reassign ${type}`;
     container.appendChild(title);
 
+    // Notes Input
+    const notesLabel = document.createElement('label');
+    notesLabel.className = "text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block text-left";
+    notesLabel.innerText = "Notes (Optional)";
+    
+    const notesInput = document.createElement('textarea');
+    notesInput.className = "w-full bg-slate-50 rounded-xl p-3 text-xs font-bold text-slate-700 outline-none resize-none mb-4 focus:ring-2 ring-indigo-500/20 transition-all border-2 border-transparent focus:border-indigo-500/20";
+    notesInput.placeholder = "Add instructions...";
+    notesInput.rows = 3;
+    
+    const dStr = date.toISOString().split('T')[0];
+    const existingOverride = overrides.find(o => o.date === dStr && o.type === type);
+    if (existingOverride?.notes) {
+      notesInput.value = existingOverride.notes;
+    }
+
     const list = document.createElement('div');
-    list.className = "grid grid-cols-2 gap-2";
+    list.className = "grid grid-cols-2 gap-2 mb-4";
     
     const options = [...roommates.map(r => r.name), 'N/A', 'Custom...'];
+
+    const updateButtonStyles = () => {
+      Array.from(list.children).forEach((child: any) => {
+        const btnName = child.innerText;
+        if (btnName === 'Custom...') {
+           child.className = "py-4 px-2 rounded-2xl text-[11px] font-black uppercase transition-all active:scale-95 bg-slate-50 text-slate-500 hover:bg-slate-100";
+           return;
+        }
+        
+        const isSelected = btnName === selectedMember;
+        child.className = "py-4 px-2 rounded-2xl text-[11px] font-black uppercase transition-all active:scale-95 " + 
+                  (isSelected ? "bg-indigo-600 text-white shadow-lg" : "bg-slate-50 text-slate-500 hover:bg-slate-100");
+      });
+    };
+
     options.forEach(opt => {
       const btn = document.createElement('button');
-      btn.className = "py-4 px-2 rounded-2xl text-[11px] font-black uppercase transition-all active:scale-95 " + 
-                      (opt === currentMember ? "bg-indigo-600 text-white shadow-lg" : "bg-slate-50 text-slate-500 hover:bg-slate-100");
       btn.innerText = opt;
       btn.onclick = () => {
-        let finalName = opt;
         if (opt === 'Custom...') {
           const custom = prompt("Enter Name:");
-          if (!custom) {
-            document.body.removeChild(overlay);
-            return;
+          if (custom) {
+            selectedMember = custom;
+            updateButtonStyles();
           }
-          finalName = custom;
+        } else {
+          selectedMember = opt;
+          updateButtonStyles();
         }
-        onAddOverride({
-          date: date.toISOString().split('T')[0],
-          type,
-          member: finalName
-        });
-        document.body.removeChild(overlay);
       };
       list.appendChild(btn);
     });
     
-    container.appendChild(list);
+    updateButtonStyles(); // Initial style application
     
-    const close = document.createElement('button');
-    close.className = "w-full mt-6 py-2 text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] active:text-slate-500";
-    close.innerText = "Close";
-    close.onclick = () => document.body.removeChild(overlay);
-    container.appendChild(close);
+    container.appendChild(list);
+    container.appendChild(notesLabel);
+    container.appendChild(notesInput);
+    
+    const saveBtn = document.createElement('button');
+    saveBtn.className = "w-full mt-2 py-4 bg-indigo-600 rounded-2xl text-xs font-black text-white uppercase tracking-widest shadow-xl active:scale-95 transition-all";
+    saveBtn.innerText = "Save Assignment";
+    saveBtn.onclick = () => {
+        onAddOverride({
+          date: date.toISOString().split('T')[0],
+          type,
+          member: selectedMember,
+          notes: notesInput.value.trim() || undefined
+        });
+        document.body.removeChild(overlay);
+    };
+    container.appendChild(saveBtn);
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = "w-full mt-2 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600";
+    cancelBtn.innerText = "Cancel";
+    cancelBtn.onclick = () => document.body.removeChild(overlay);
+    container.appendChild(cancelBtn);
 
     overlay.appendChild(container);
     document.body.appendChild(overlay);
@@ -203,6 +247,12 @@ const PlanView: React.FC<PlanViewProps> = ({ roommates, overrides, onAddOverride
                       <User size={20} strokeWidth={3} />
                     </div>
                   </div>
+                  {overrides.find(o => o.date === dStr && o.type === 'Laundry')?.notes && (
+                    <div className="mt-2 px-1 text-[10px] font-bold text-slate-500 italic truncate flex items-center gap-1">
+                      <Info size={10} /> {overrides.find(o => o.date === dStr && o.type === 'Laundry')?.notes}
+                    </div>
+                  )}
+                  </div>
                 )}
                 
                 {(activeFilter === 'all' || activeFilter === 'cleaning') && (idx % 3 === 0 || overrides.some(o => o.date === dStr && o.type === 'Cleaning')) && (
@@ -221,6 +271,12 @@ const PlanView: React.FC<PlanViewProps> = ({ roommates, overrides, onAddOverride
                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${overrides.some(o => o.date === dStr && o.type === 'Cleaning') ? 'bg-amber-600 text-white' : 'bg-slate-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white'}`}>
                       <Info size={20} strokeWidth={3} />
                     </div>
+                  </div>
+                  {overrides.find(o => o.date === dStr && o.type === 'Cleaning')?.notes && (
+                    <div className="mt-2 px-1 text-[10px] font-bold text-slate-500 italic truncate flex items-center gap-1">
+                      <Info size={10} /> {overrides.find(o => o.date === dStr && o.type === 'Cleaning')?.notes}
+                    </div>
+                  )}
                   </div>
                 )}
 
@@ -241,6 +297,12 @@ const PlanView: React.FC<PlanViewProps> = ({ roommates, overrides, onAddOverride
                       <Calendar size={20} strokeWidth={3} />
                     </div>
                   </div>
+                  {overrides.find(o => o.date === dStr && o.type === 'Grass')?.notes && (
+                    <div className="mt-2 px-1 text-[10px] font-bold text-slate-500 italic truncate flex items-center gap-1">
+                      <Info size={10} /> {overrides.find(o => o.date === dStr && o.type === 'Grass')?.notes}
+                    </div>
+                  )}
+                  </div>
                 )}
 
                 {(activeFilter === 'all' || activeFilter === 'bins') && (isBinDay || overrides.some(o => o.date === dStr && o.type === 'Bins')) && (
@@ -259,6 +321,12 @@ const PlanView: React.FC<PlanViewProps> = ({ roommates, overrides, onAddOverride
                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${overrides.some(o => o.date === dStr && o.type === 'Bins') ? 'bg-rose-600 text-white' : 'bg-slate-50 text-rose-600 group-hover:bg-rose-600 group-hover:text-white'}`}>
                       <Calendar size={20} strokeWidth={3} />
                     </div>
+                  </div>
+                  {overrides.find(o => o.date === dStr && o.type === 'Bins')?.notes && (
+                    <div className="mt-2 px-1 text-[10px] font-bold text-slate-500 italic truncate flex items-center gap-1">
+                      <Info size={10} /> {overrides.find(o => o.date === dStr && o.type === 'Bins')?.notes}
+                    </div>
+                  )}
                   </div>
                 )}
               </div>

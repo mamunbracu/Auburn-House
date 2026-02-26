@@ -18,7 +18,8 @@ import {
   ChevronRight, 
   Download,
   Clock,
-  ArrowUpRight
+  ArrowUpRight,
+  ChevronDown
 } from 'lucide-react';
 import PinModal from './PinModal';
 
@@ -252,31 +253,64 @@ const FinanceView: React.FC<FinanceViewProps> = ({
           {showAdd && (
             <form onSubmit={handleAddEditAttempt} className="bg-white dark:bg-slate-900 p-5 sm:p-8 rounded-[2rem] sm:rounded-[3rem] border border-primary/10 shadow-2xl space-y-4 sm:space-y-5 animate-in zoom-in-95">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                <select value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value as any})} className="bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-4 py-4 text-xs font-bold outline-none dark:text-white italic appearance-none">
-                  {['Electricity', 'Water', 'Gas', 'Internet', 'Other'].map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                </select>
-                <select value={formData.month} onChange={(e) => setFormData({...formData, month: e.target.value})} className="bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-4 py-4 text-xs font-bold outline-none dark:text-white italic appearance-none">
-                  {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map(m => <option key={m} value={m}>{m}</option>)}
-                </select>
+                <div className="relative group">
+                  <input 
+                    list="categories" 
+                    value={formData.category} 
+                    onChange={(e) => setFormData({...formData, category: e.target.value})} 
+                    className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-primary/30 rounded-2xl px-4 py-4 text-xs font-bold outline-none dark:text-white italic placeholder:text-slate-400 transition-all"
+                    placeholder="Select or type category..."
+                  />
+                  <datalist id="categories">
+                    {['Electricity', 'Water', 'Gas', 'Internet', 'Other'].map(cat => <option key={cat} value={cat} />)}
+                  </datalist>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
+                    <ChevronDown size={14} strokeWidth={3} />
+                  </div>
+                </div>
+
+                <div className="relative group">
+                  <select value={formData.month} onChange={(e) => setFormData({...formData, month: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-primary/30 rounded-2xl px-4 py-4 text-xs font-bold outline-none dark:text-white italic appearance-none cursor-pointer transition-all">
+                    {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map(m => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
+                    <ChevronDown size={14} strokeWidth={3} />
+                  </div>
+                </div>
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-1 group">
                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-2 group-focus-within:text-primary transition-colors">Billing Start</label>
-                  <input type="date" value={formData.billingPeriodStart} onChange={(e) => setFormData({...formData, billingPeriodStart: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-primary/30 rounded-2xl px-4 py-4 text-xs font-bold outline-none dark:text-white italic transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-700" />
+                  <div className="relative">
+                    <input type="date" value={formData.billingPeriodStart} onChange={(e) => setFormData({...formData, billingPeriodStart: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-primary/30 rounded-2xl pl-4 pr-10 py-4 text-xs font-bold outline-none dark:text-white italic transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-700" />
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
+                      <Calendar size={14} strokeWidth={3} />
+                    </div>
+                  </div>
                 </div>
                 <div className="space-y-1 group">
                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-2 group-focus-within:text-primary transition-colors">Billing End</label>
-                  <input type="date" value={formData.billingPeriodEnd} onChange={(e) => setFormData({...formData, billingPeriodEnd: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-primary/30 rounded-2xl px-4 py-4 text-xs font-bold outline-none dark:text-white italic transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-700" />
+                  <div className="relative">
+                    <input type="date" value={formData.billingPeriodEnd} onChange={(e) => setFormData({...formData, billingPeriodEnd: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-primary/30 rounded-2xl pl-4 pr-10 py-4 text-xs font-bold outline-none dark:text-white italic transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-700" />
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
+                      <Calendar size={14} strokeWidth={3} />
+                    </div>
+                  </div>
                 </div>
               </div>
 
               <input type="number" value={formData.amount} onChange={(e) => setFormData({...formData, amount: e.target.value})} placeholder="Total Amount ($)" className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-6 py-4 text-lg font-black text-primary shadow-inner outline-none italic" />
               
-              <select value={formData.paidBy} onChange={(e) => setFormData({...formData, paidBy: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-4 py-4 text-xs font-bold outline-none dark:text-white italic appearance-none">
-                <option value="Not Paid Yet">Not Paid Yet</option>
-                {roommates.map(r => <option key={r.id} value={r.name}>{r.name}</option>)}
-              </select>
+              <div className="relative group">
+                <select value={formData.paidBy} onChange={(e) => setFormData({...formData, paidBy: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-primary/30 rounded-2xl px-4 py-4 text-xs font-bold outline-none dark:text-white italic appearance-none cursor-pointer transition-all">
+                  <option value="Not Paid Yet">Not Paid Yet</option>
+                  {roommates.map(r => <option key={r.id} value={r.name}>{r.name}</option>)}
+                </select>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
+                  <ChevronDown size={14} strokeWidth={3} />
+                </div>
+              </div>
               
               <input type="text" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} placeholder="Optional description" className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-6 py-4 text-xs font-bold outline-none dark:text-white shadow-inner italic" />
               
