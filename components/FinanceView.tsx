@@ -309,100 +309,16 @@ const FinanceView: React.FC<FinanceViewProps> = ({
 
       {view === 'ledger' && (
         <div className="space-y-4 sm:space-y-6 animate-in fade-in duration-300">
-          <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-1 gap-3 sm:gap-4">
+          <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-2 gap-3 sm:gap-4">
             <div>
               <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white italic uppercase tracking-tighter leading-none">Utility Entry</h2>
               <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Live House Bills</p>
             </div>
-            <button onClick={() => { setShowAdd(!showAdd); setEditingBillId(null); }} className="w-full sm:w-auto bg-primary text-white px-6 py-2.5 sm:py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl active:scale-95 transition-all">
-              {showAdd ? 'Cancel' : '+ New Invoice'}
-            </button>
+            <div className="flex items-center gap-2 bg-slate-900/50 backdrop-blur-xl p-2 rounded-2xl border border-white/5">
+              <Receipt size={16} className="text-primary" />
+              <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Active Ledger</span>
+            </div>
           </header>
-
-          {showAdd && (
-            <form onSubmit={handleAddEditAttempt} className="bg-white dark:bg-slate-900 p-5 sm:p-8 rounded-[2rem] sm:rounded-[3rem] border border-primary/10 shadow-2xl space-y-4 sm:space-y-5 animate-in zoom-in-95">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                <div className="relative group">
-                  <input 
-                    list="categories" 
-                    value={formData.category} 
-                    onChange={(e) => setFormData({...formData, category: e.target.value})} 
-                    className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-primary/30 rounded-2xl px-4 py-4 text-xs font-bold outline-none dark:text-white italic placeholder:text-slate-400 transition-all"
-                    placeholder="Select or type category..."
-                  />
-                  <datalist id="categories">
-                    {['Electricity', 'Water', 'Gas', 'Internet', 'Other'].map(cat => <option key={cat} value={cat} />)}
-                  </datalist>
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
-                    <ChevronDown size={14} strokeWidth={3} />
-                  </div>
-                </div>
-
-                <div className="relative group">
-                  <select value={formData.month} onChange={(e) => setFormData({...formData, month: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-primary/30 rounded-2xl px-4 py-4 text-xs font-bold outline-none dark:text-white italic appearance-none cursor-pointer transition-all">
-                    {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map(m => <option key={m} value={m}>{m}</option>)}
-                  </select>
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
-                    <ChevronDown size={14} strokeWidth={3} />
-                  </div>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                <div className="space-y-1 group">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-2 group-focus-within:text-primary transition-colors">Billing Start</label>
-                  <div className="relative">
-                    <input type="date" value={formData.billingPeriodStart} onChange={(e) => setFormData({...formData, billingPeriodStart: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-primary/30 rounded-2xl pl-4 pr-10 py-4 text-xs font-bold outline-none dark:text-white italic transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-700" />
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
-                      <Calendar size={14} strokeWidth={3} />
-                    </div>
-                  </div>
-                </div>
-                <div className="space-y-1 group">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-2 group-focus-within:text-primary transition-colors">Billing End</label>
-                  <div className="relative">
-                    <input type="date" value={formData.billingPeriodEnd} onChange={(e) => setFormData({...formData, billingPeriodEnd: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-primary/30 rounded-2xl pl-4 pr-10 py-4 text-xs font-bold outline-none dark:text-white italic transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-700" />
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
-                      <Calendar size={14} strokeWidth={3} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <input type="number" value={formData.amount} onChange={(e) => setFormData({...formData, amount: e.target.value})} placeholder="Total Amount ($)" className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-6 py-4 text-lg font-black text-primary shadow-inner outline-none italic" />
-              
-              <div className="relative group">
-                <select value={formData.paidBy} onChange={(e) => setFormData({...formData, paidBy: e.target.value as any})} className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-primary/30 rounded-2xl px-4 py-4 text-xs font-bold outline-none dark:text-white italic appearance-none cursor-pointer transition-all">
-                  <option value="Not Paid Yet">Not Paid Yet</option>
-                  {roommates.map(r => <option key={r.id} value={r.name}>{r.name}</option>)}
-                </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
-                  <ChevronDown size={14} strokeWidth={3} />
-                </div>
-              </div>
-              
-              <input type="text" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} placeholder="Optional description" className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-6 py-4 text-xs font-bold outline-none dark:text-white shadow-inner italic" />
-              
-              <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 px-2">Resident Stay Periods</h4>
-                <div className="space-y-3">
-                  {roommates.map(r => (
-                    <div key={r.id} className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl">
-                      <div className="font-black text-xs uppercase italic text-slate-700 dark:text-slate-300 pl-2">{r.name}</div>
-                      <div className="flex gap-2 sm:col-span-2">
-                        <input type="date" value={formData.memberStayPeriods[r.name]?.start || formData.billingPeriodStart} onChange={(e) => setFormData({...formData, memberStayPeriods: {...formData.memberStayPeriods, [r.name]: {...formData.memberStayPeriods[r.name], start: e.target.value}}})} className="w-full bg-white dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-xl px-2 py-2 text-[10px] font-bold outline-none dark:text-white italic transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-800" />
-                        <input type="date" value={formData.memberStayPeriods[r.name]?.end || formData.billingPeriodEnd} onChange={(e) => setFormData({...formData, memberStayPeriods: {...formData.memberStayPeriods, [r.name]: {...formData.memberStayPeriods[r.name], end: e.target.value}}})} className="w-full bg-white dark:bg-slate-900 border-2 border-transparent focus:border-primary/30 rounded-xl px-2 py-2 text-[10px] font-bold outline-none dark:text-white italic transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-800" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <button type="submit" className="w-full py-5 bg-primary rounded-3xl font-black text-xs text-white uppercase tracking-widest shadow-xl active:scale-95 transition-all mt-4">
-                {editingBillId ? 'Update Utility Record' : 'Commit & Split Bill'}
-              </button>
-            </form>
-          )}
 
           <div className="space-y-3">
             {bills.slice(0, 3).map(bill => (
@@ -426,12 +342,15 @@ const FinanceView: React.FC<FinanceViewProps> = ({
 
       {view === 'history' && (
         <div className="space-y-6 animate-in slide-in-from-right duration-300 pb-20">
-          <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-1 gap-4">
+          <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 px-2">
             <div>
               <h2 className="text-2xl font-black text-slate-800 dark:text-white italic uppercase tracking-tighter leading-none">Bill History</h2>
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Full House Archive</p>
             </div>
-            <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded-2xl self-end sm:self-auto"><History size={20} className="text-slate-400" /></div>
+            <div className="flex items-center gap-2 bg-slate-900/50 backdrop-blur-xl p-2 rounded-2xl border border-white/5">
+              <History size={16} className="text-primary" />
+              <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Data Vault</span>
+            </div>
           </header>
 
           <div className="space-y-3">
@@ -481,8 +400,11 @@ const FinanceView: React.FC<FinanceViewProps> = ({
 
       {view === 'expenses' && (
         <div className="space-y-4 sm:space-y-6 animate-in fade-in duration-300">
-          <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white italic uppercase tracking-tighter">Net Debt Summary</h2>
+          <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 px-2">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white italic uppercase tracking-tighter leading-none">Net Debt Summary</h2>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Resident Balance Tracker</p>
+            </div>
             <div className="flex flex-wrap gap-1.5">
               {uniqueCategories.map(cat => (
                 <button
@@ -491,7 +413,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({
                   className={`px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all border-2 ${
                     selectedCategories.includes(cat)
                       ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20'
-                      : 'bg-white dark:bg-slate-900 text-slate-400 border-slate-100 dark:border-slate-800 hover:border-primary/30'
+                      : 'bg-slate-900/50 backdrop-blur-xl text-slate-400 border-white/5 hover:border-primary/30'
                   }`}
                 >
                   {cat}
@@ -500,7 +422,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({
               {selectedCategories.length > 0 && (
                 <button
                   onClick={() => setSelectedCategories([])}
-                  className="px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest text-rose-500 hover:bg-rose-50 transition-all"
+                  className="px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest text-rose-500 hover:bg-rose-50/10 transition-all"
                 >
                   Clear
                 </button>
@@ -539,12 +461,15 @@ const FinanceView: React.FC<FinanceViewProps> = ({
 
       {view === 'rent' && (
         <div className="space-y-6 animate-in slide-in-from-right duration-300 pb-20">
-          <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-1 gap-4">
+          <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 px-2">
             <div>
               <h2 className="text-2xl font-black text-slate-800 dark:text-white italic uppercase tracking-tighter leading-none">Rent Schedule</h2>
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Upcoming Payments</p>
             </div>
-            <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded-2xl self-end sm:self-auto"><Calendar size={20} className="text-slate-400" /></div>
+            <div className="flex items-center gap-2 bg-slate-900/50 backdrop-blur-xl p-2 rounded-2xl border border-white/5">
+              <Calendar size={16} className="text-primary" />
+              <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Payment Timeline</span>
+            </div>
           </header>
 
           <div className="space-y-3">
@@ -612,9 +537,18 @@ const FinanceView: React.FC<FinanceViewProps> = ({
 
       {view === 'calc' && (
         <div className="space-y-6 animate-in zoom-in-95 duration-300 max-w-4xl mx-auto w-full">
+          <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 px-2 mb-6">
+            <div>
+              <h2 className="text-2xl font-black text-slate-800 dark:text-white italic uppercase tracking-tighter leading-none">Math Engine</h2>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Quick Calculations</p>
+            </div>
+            <div className="flex items-center gap-2 bg-slate-900/50 backdrop-blur-xl p-2 rounded-2xl border border-white/5">
+              <Calculator size={16} className="text-primary" />
+              <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Standard Mode</span>
+            </div>
+          </header>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 items-start">
-            <div className="bg-white dark:bg-slate-900 p-3 sm:p-8 rounded-[2rem] sm:rounded-[4rem] border-2 border-slate-50 dark:border-slate-800 shadow-2xl space-y-4 sm:space-y-8">
-              <header className="flex justify-between items-center px-2 sm:px-4"><div className="flex items-center gap-3"><div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary"><Calculator size={18} className="sm:w-5 sm:h-5" /></div><h2 className="text-lg sm:text-xl font-black text-slate-800 dark:text-white italic uppercase tracking-tighter">Math Engine</h2></div></header>
+            <div className="bg-white/5 backdrop-blur-xl dark:bg-slate-900/40 p-3 sm:p-8 rounded-[2rem] sm:rounded-[4rem] border border-white/10 shadow-2xl space-y-4 sm:space-y-8">
               <div className="bg-slate-950 p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] text-right min-h-[100px] sm:min-h-[160px] flex flex-col justify-end shadow-2xl border-4 border-slate-900 relative group overflow-hidden">
                 {lastResult && <div className="text-[9px] sm:text-[10px] font-black text-slate-600 tracking-widest h-4 mb-1 truncate">{lastResult}</div>}
                 <div className="text-[10px] sm:text-xs font-black text-slate-500 tracking-widest h-6 mb-1 truncate">{calcExpression}</div>
