@@ -62,6 +62,26 @@ const FinanceView: React.FC<FinanceViewProps> = ({
   const [showAdd, setShowAdd] = useState(false);
   const [activeMemberId, setActiveMemberId] = useState<string | null>(null);
   const [editingBillId, setEditingBillId] = useState<string | null>(null);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
+  const uniqueCategories = useMemo(() => {
+    const cats = new Set<string>();
+    bills.forEach(b => cats.add(b.category));
+    return Array.from(cats).sort();
+  }, [bills]);
+
+  const toggleCategory = (cat: string) => {
+    setSelectedCategories(prev => 
+      prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
+    );
+  };
+
+  const filteredBills = useMemo(() => {
+    if (selectedCategories.length === 0) return bills;
+    return bills.filter(b => selectedCategories.includes(b.category));
+  }, [bills, selectedCategories]);
+
+  const filteredBillIds = useMemo(() => new Set(filteredBills.map(b => b.id)), [filteredBills]);
   
   const [formData, setFormData] = useState({
     category: 'Electricity' as BillItem['category'],
@@ -274,23 +294,27 @@ const FinanceView: React.FC<FinanceViewProps> = ({
         />
       )}
 
-      <div className="grid grid-cols-2 sm:flex p-1 bg-slate-900/90 rounded-[1.5rem] sm:rounded-[2.5rem] border border-white/5 shadow-2xl gap-1">
+      <div className="grid grid-cols-3 sm:flex p-1 bg-slate-900/90 rounded-[1.5rem] sm:rounded-[2.5rem] border border-white/5 shadow-2xl gap-1">
         {(['ledger', 'expenses', 'rent', 'calc', 'bill-calc', 'history'] as const).map((t) => (
-          <button key={t} onClick={() => setView(t)} className={`flex-1 py-3 px-1 sm:px-6 text-[9px] sm:text-[10px] font-black uppercase rounded-[1rem] sm:rounded-[2rem] transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 whitespace-nowrap shrink-0 ${view === t ? 'bg-primary text-white shadow-xl scale-[1.02]' : 'text-slate-500 hover:text-slate-400'}`}>
-            {t === 'ledger' ? <Receipt size={14} /> : t === 'expenses' ? <PieChart size={14} /> : t === 'rent' ? <Calendar size={14} /> : t === 'calc' ? <Calculator size={14} /> : t === 'bill-calc' ? <Divide size={14} /> : <History size={14} />}
-            <span className="italic">{t === 'ledger' ? 'Bills' : t === 'expenses' ? 'Tracker' : t === 'rent' ? 'Rent' : t === 'calc' ? 'Calc' : t === 'bill-calc' ? 'Calculate Bill' : 'History'}</span>
+          <button 
+            key={t} 
+            onClick={() => setView(t)} 
+            className={`w-full py-2.5 sm:py-3 px-1 sm:px-6 text-[8px] sm:text-[10px] font-black uppercase rounded-[1rem] sm:rounded-[2rem] transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 ${view === t ? 'bg-primary text-white shadow-xl scale-[1.02] z-10' : 'text-slate-500 hover:text-slate-400'}`}
+          >
+            {t === 'ledger' ? <Receipt size={12} className="sm:w-3.5 sm:h-3.5" /> : t === 'expenses' ? <PieChart size={12} className="sm:w-3.5 sm:h-3.5" /> : t === 'rent' ? <Calendar size={12} className="sm:w-3.5 sm:h-3.5" /> : t === 'calc' ? <Calculator size={12} className="sm:w-3.5 sm:h-3.5" /> : t === 'bill-calc' ? <Divide size={12} className="sm:w-3.5 sm:h-3.5" /> : <History size={12} className="sm:w-3.5 sm:h-3.5" />}
+            <span className="italic leading-none">{t === 'ledger' ? 'Bills' : t === 'expenses' ? 'Tracker' : t === 'rent' ? 'Rent' : t === 'calc' ? 'Calc' : t === 'bill-calc' ? 'Split' : 'History'}</span>
           </button>
         ))}
       </div>
 
       {view === 'ledger' && (
-        <div className="space-y-6 animate-in fade-in duration-300">
-          <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-1 gap-4">
+        <div className="space-y-4 sm:space-y-6 animate-in fade-in duration-300">
+          <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-1 gap-3 sm:gap-4">
             <div>
-              <h2 className="text-2xl font-black text-slate-800 dark:text-white italic uppercase tracking-tighter leading-none">Utility Entry</h2>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Live House Bills</p>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white italic uppercase tracking-tighter leading-none">Utility Entry</h2>
+              <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Live House Bills</p>
             </div>
-            <button onClick={() => { setShowAdd(!showAdd); setEditingBillId(null); }} className="w-full sm:w-auto bg-primary text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl active:scale-95 transition-all">
+            <button onClick={() => { setShowAdd(!showAdd); setEditingBillId(null); }} className="w-full sm:w-auto bg-primary text-white px-6 py-2.5 sm:py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl active:scale-95 transition-all">
               {showAdd ? 'Cancel' : '+ New Invoice'}
             </button>
           </header>
@@ -380,20 +404,19 @@ const FinanceView: React.FC<FinanceViewProps> = ({
             </form>
           )}
 
-          <div className="space-y-4">
-            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Most Recent Activity</h3>
+          <div className="space-y-3">
             {bills.slice(0, 3).map(bill => (
-              <div key={bill.id} className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 group transition-all hover:shadow-xl hover:border-primary/20">
-                <div className="flex items-center gap-4 sm:gap-5 w-full sm:w-auto">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center text-xl sm:text-2xl shadow-inner italic shrink-0">⚡</div>
+              <div key={bill.id} className="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 group transition-all hover:shadow-xl hover:border-primary/20">
+                <div className="flex items-center gap-3 sm:gap-5 w-full sm:w-auto">
+                  <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl bg-primary/10 text-primary flex items-center justify-center text-lg sm:text-2xl shadow-inner italic shrink-0">⚡</div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-black text-slate-800 dark:text-slate-200 text-sm uppercase tracking-tight italic truncate">{bill.category}</p>
-                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1 truncate">{bill.month} • Payor: {bill.paidBy}</p>
+                    <p className="font-black text-slate-800 dark:text-slate-200 text-[11px] sm:text-sm uppercase tracking-tight italic whitespace-normal">{bill.category}</p>
+                    <p className="text-[8px] sm:text-[9px] text-slate-400 font-bold uppercase tracking-[0.1em] sm:tracking-[0.2em] mt-0.5 sm:mt-1 whitespace-normal leading-tight">{bill.month} • Payor: {bill.paidBy}</p>
                   </div>
                 </div>
-                <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto border-t sm:border-t-0 border-slate-100 dark:border-slate-800 pt-3 sm:pt-0">
-                  <div className="text-left sm:text-right"><p className="text-primary font-black text-xl sm:text-2xl tracking-tighter italic">${bill.totalAmount}</p></div>
-                  <button onClick={() => setView('history')} className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 flex items-center justify-center hover:text-primary transition-all shrink-0"><ChevronRight size={18} /></button>
+                <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto border-t sm:border-t-0 border-slate-100 dark:border-slate-800 pt-2 sm:pt-0">
+                  <div className="text-left sm:text-right"><p className="text-primary font-black text-lg sm:text-2xl tracking-tighter italic">${bill.totalAmount}</p></div>
+                  <button onClick={() => setView('history')} className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 flex items-center justify-center hover:text-primary transition-all shrink-0"><ChevronRight size={16} /></button>
                 </div>
               </div>
             ))}
@@ -418,8 +441,8 @@ const FinanceView: React.FC<FinanceViewProps> = ({
                   <div className="flex items-center gap-4 w-full sm:w-auto">
                     <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-xl shadow-inner italic shrink-0">📄</div>
                     <div className="min-w-0">
-                      <h4 className="font-black text-slate-800 dark:text-white uppercase italic text-sm tracking-tight truncate">{bill.category} — {bill.month}</h4>
-                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 truncate">Disbursed by {bill.paidBy}</p>
+                      <h4 className="font-black text-slate-800 dark:text-white uppercase italic text-sm tracking-tight whitespace-normal leading-tight">{bill.category} — {bill.month}</h4>
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 whitespace-normal leading-tight">Disbursed by {bill.paidBy}</p>
                     </div>
                   </div>
                   <div className="text-left sm:text-right w-full sm:w-auto border-t sm:border-t-0 border-slate-100 dark:border-slate-800 pt-3 sm:pt-0">
@@ -457,25 +480,55 @@ const FinanceView: React.FC<FinanceViewProps> = ({
       )}
 
       {view === 'expenses' && (
-        <div className="space-y-6 animate-in fade-in duration-300">
-          <header><h2 className="text-2xl font-black text-slate-800 dark:text-white italic uppercase tracking-tighter">Net Debt Summary</h2></header>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-4 sm:space-y-6 animate-in fade-in duration-300">
+          <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white italic uppercase tracking-tighter">Net Debt Summary</h2>
+            <div className="flex flex-wrap gap-1.5">
+              {uniqueCategories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => toggleCategory(cat)}
+                  className={`px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all border-2 ${
+                    selectedCategories.includes(cat)
+                      ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20'
+                      : 'bg-white dark:bg-slate-900 text-slate-400 border-slate-100 dark:border-slate-800 hover:border-primary/30'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+              {selectedCategories.length > 0 && (
+                <button
+                  onClick={() => setSelectedCategories([])}
+                  className="px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest text-rose-500 hover:bg-rose-50 transition-all"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          </header>
+          <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 sm:gap-4">
             {allFinancialMembers.map(member => {
-              const totalOwed = bills.reduce((sum, b) => sum + calculateMemberShare(b, member.name), 0);
-              const totalPaid = bills.reduce((sum, b) => b.paidBy === member.name ? sum + b.totalAmount : sum, 0) 
-                              + payments.filter(p => p.memberId === member.name).reduce((sum, p) => sum + p.amount, 0)
+              const totalOwed = filteredBills.reduce((sum, b) => sum + calculateMemberShare(b, member.name), 0);
+              const totalPaid = filteredBills.reduce((sum, b) => b.paidBy === member.name ? sum + b.totalAmount : sum, 0) 
+                              + payments.filter(p => p.memberId === member.name && filteredBillIds.has(p.billId)).reduce((sum, p) => sum + p.amount, 0)
                               - payments.filter(p => {
                                   const bill = bills.find(b => b.id === p.billId);
-                                  return bill && bill.paidBy === member.name;
+                                  return bill && bill.paidBy === member.name && filteredBillIds.has(p.billId);
                                 }).reduce((sum, p) => sum + p.amount, 0);
               const netDebt = totalOwed - totalPaid;
 
               return (
-                <button key={member.id} onClick={() => setActiveMemberId(member.id)} className="bg-white dark:bg-slate-900 p-5 sm:p-8 rounded-[2rem] sm:rounded-[3rem] border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all hover:shadow-2xl text-left">
-                  <div className="flex items-center gap-4 sm:gap-5"><img src={member.avatar} className="w-12 h-12 sm:w-16 sm:h-16 rounded-[1.5rem] sm:rounded-[2rem] object-cover border-4 border-slate-50 dark:border-slate-800 shadow-md shrink-0" /><div><p className="font-black text-slate-800 dark:text-white uppercase text-sm sm:text-base italic tracking-tighter">{member.name}</p></div></div>
-                  <div className={`w-full sm:w-auto text-right px-5 sm:px-6 py-3 sm:py-4 rounded-2xl sm:rounded-3xl flex items-center justify-between sm:justify-end gap-3 ${netDebt <= 0.1 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
-                    {netDebt <= 0.1 ? <Check size={18} strokeWidth={3} /> : <ArrowUpRight size={18} strokeWidth={3} />}
-                    <span className="font-black tracking-tighter text-xl sm:text-2xl italic">${Math.abs(netDebt).toFixed(1)}</span>
+                <button key={member.id} onClick={() => setActiveMemberId(member.id)} className="bg-white dark:bg-slate-900 p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[3rem] border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center sm:items-center justify-between gap-1.5 sm:gap-4 transition-all hover:shadow-2xl text-center sm:text-left overflow-hidden">
+                  <div className="flex flex-col sm:flex-row items-center gap-1.5 sm:gap-5 w-full sm:w-auto">
+                    <img src={member.avatar} className="w-10 h-10 sm:w-16 sm:h-16 rounded-xl sm:rounded-[2rem] object-cover border-2 sm:border-4 border-slate-50 dark:border-slate-800 shadow-md shrink-0" />
+                    <div className="min-w-0 w-full">
+                      <p className="font-black text-slate-800 dark:text-white uppercase text-[10px] sm:text-base italic tracking-tighter break-words leading-tight">{member.name}</p>
+                    </div>
+                  </div>
+                  <div className={`w-full sm:w-auto text-center sm:text-right px-2 sm:px-6 py-1.5 sm:py-4 rounded-xl sm:rounded-3xl flex items-center justify-center sm:justify-end gap-1 sm:gap-3 ${netDebt <= 0.1 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+                    {netDebt <= 0.1 ? <Check size={10} className="sm:w-[18px] sm:h-[18px]" strokeWidth={3} /> : <ArrowUpRight size={10} className="sm:w-[18px] sm:h-[18px]" strokeWidth={3} />}
+                    <span className="font-black tracking-tighter text-xs sm:text-2xl italic">${Math.abs(netDebt).toFixed(0)}</span>
                   </div>
                 </button>
               );
@@ -496,20 +549,20 @@ const FinanceView: React.FC<FinanceViewProps> = ({
 
           <div className="space-y-3">
             {rentDates.map((rent, idx) => (
-              <div key={idx} className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 flex flex-col gap-4 group transition-all hover:shadow-2xl animate-in slide-in-from-bottom duration-500" style={{animationDelay: `${idx * 50}ms`}}>
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <div className="flex items-center gap-4 w-full sm:w-auto">
-                    <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shadow-inner">
-                      <Calendar size={20} />
+              <div key={idx} className="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 flex flex-col gap-3 sm:gap-4 group transition-all hover:shadow-2xl animate-in slide-in-from-bottom duration-500" style={{animationDelay: `${idx * 50}ms`}}>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary shadow-inner">
+                      <Calendar size={18} className="sm:w-5 sm:h-5" />
                     </div>
                     <div className="min-w-0">
-                      <h4 className="font-black text-slate-800 dark:text-white uppercase italic text-sm tracking-tight truncate">{format(new Date(rent.date), 'MMMM do, yyyy')}</h4>
-                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 truncate">Rent Payment</p>
+                      <h4 className="font-black text-slate-800 dark:text-white uppercase italic text-[11px] sm:text-sm tracking-tight truncate">{format(new Date(rent.date), 'MMMM do, yyyy')}</h4>
+                      <p className="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 truncate">Rent Payment</p>
                     </div>
                   </div>
-                  <div className="text-left sm:text-right w-full sm:w-auto border-t sm:border-t-0 border-slate-100 dark:border-slate-800 pt-3 sm:pt-0">
-                    <p className="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tighter italic leading-none">${rent.amount}</p>
-                    <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest mt-1">Total Due</p>
+                  <div className="text-left sm:text-right w-full sm:w-auto border-t sm:border-t-0 border-slate-100 dark:border-slate-800 pt-2 sm:pt-0">
+                    <p className="text-lg sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tighter italic leading-none">${rent.amount}</p>
+                    <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest mt-0.5 sm:mt-1">Total Due</p>
                   </div>
                 </div>
               </div>
@@ -523,7 +576,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({
           <div className="bg-white dark:bg-slate-900 p-8 rounded-[3rem] w-full max-w-lg border border-white/10 shadow-2xl flex flex-col max-h-[85vh]">
             <div className="flex justify-between items-center mb-10"><h3 className="font-black text-slate-800 dark:text-white uppercase text-lg italic tracking-tighter">Resident Ledger</h3><button onClick={() => setActiveMemberId(null)} className="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-400 flex items-center justify-center"><X size={24} /></button></div>
             <div className="flex-1 overflow-y-auto no-scrollbar">
-              {bills.map(bill => {
+              {filteredBills.map(bill => {
                 const activeMemberName = allFinancialMembers.find(r => r.id === activeMemberId)?.name || '';
                 const isPayer = bill.paidBy === activeMemberName;
                 const split = calculateMemberShare(bill, activeMemberName);
@@ -569,7 +622,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({
               </div>
               <div className="grid grid-cols-4 gap-1.5 sm:gap-4">
                 {['AC', 'DEL', '%', '÷', '7', '8', '9', '×', '4', '5', '6', '-', '1', '2', '3', '+', '0', '.', '=', 'Split'].map(btn => (
-                  <button key={btn} onClick={() => handleCalcButton(btn)} className={`h-12 sm:h-20 rounded-xl sm:rounded-3xl font-black text-base sm:text-xl flex items-center justify-center transition-all active:scale-90 shadow-sm border-2 ${btn === 'AC' || btn === 'DEL' ? 'bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border-slate-300 dark:border-slate-700' : ['+', '-', '×', '÷', '%', '=', 'Split'].includes(btn) ? 'bg-primary text-white border-primary-hover shadow-primary/20' : 'bg-slate-50 dark:bg-slate-800/50 text-slate-800 dark:text-slate-100 border-slate-100 dark:border-slate-700'}`}>{btn === 'Split' ? '÷8' : btn}</button>
+                  <button key={btn} onClick={() => handleCalcButton(btn)} className={`h-10 sm:h-20 rounded-lg sm:rounded-3xl font-black text-sm sm:text-xl flex items-center justify-center transition-all active:scale-90 shadow-sm border-2 ${btn === 'AC' || btn === 'DEL' ? 'bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border-slate-300 dark:border-slate-700' : ['+', '-', '×', '÷', '%', '=', 'Split'].includes(btn) ? 'bg-primary text-white border-primary-hover shadow-primary/20' : 'bg-slate-50 dark:bg-slate-800/50 text-slate-800 dark:text-slate-100 border-slate-100 dark:border-slate-700'}`}>{btn === 'Split' ? '÷8' : btn}</button>
                 ))}
               </div>
             </div>
