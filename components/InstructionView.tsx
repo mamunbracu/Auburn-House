@@ -25,6 +25,7 @@ const InstructionView: React.FC<InstructionViewProps> = ({ state, onUpdateInstru
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<InstructionSection | null>(null);
   const [showPin, setShowPin] = useState(false);
+  const [pinAction, setPinAction] = useState<'save' | 'delete' | null>(null);
   const [isAdding, setIsAdding] = useState(false);
 
   const handleEditClick = (section: InstructionSection) => {
@@ -46,7 +47,23 @@ const InstructionView: React.FC<InstructionViewProps> = ({ state, onUpdateInstru
   };
 
   const handleSaveAttempt = () => {
+    setPinAction('save');
     setShowPin(true);
+  };
+
+  const handleDeleteAttempt = () => {
+    setPinAction('delete');
+    setShowPin(true);
+  };
+
+  const handlePinSuccess = () => {
+    if (pinAction === 'save') {
+      handleFinalSave();
+    } else if (pinAction === 'delete') {
+      handleFinalDelete();
+    }
+    setShowPin(false);
+    setPinAction(null);
   };
 
   const handleFinalSave = () => {
@@ -61,7 +78,13 @@ const InstructionView: React.FC<InstructionViewProps> = ({ state, onUpdateInstru
     setEditingId(null);
     setEditForm(null);
     setIsAdding(false);
-    setShowPin(false);
+  };
+
+  const handleFinalDelete = () => {
+    if (!editForm) return;
+    onUpdateInstructions(state.instructions.filter(s => s.id !== editForm.id));
+    setEditingId(null);
+    setEditForm(null);
   };
 
   const handleDeleteRule = (idx: number) => {
@@ -85,7 +108,7 @@ const InstructionView: React.FC<InstructionViewProps> = ({ state, onUpdateInstru
 
   return (
     <div className="space-y-10 pb-32 animate-in fade-in slide-in-from-bottom-5 duration-700">
-      {showPin && <PinModal onSuccess={handleFinalSave} onCancel={() => setShowPin(false)} />}
+      {showPin && <PinModal onSuccess={handlePinSuccess} onCancel={() => { setShowPin(false); setPinAction(null); }} />}
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 bg-primary rounded-[2rem] flex items-center justify-center text-white shadow-2xl">
@@ -205,16 +228,7 @@ const InstructionView: React.FC<InstructionViewProps> = ({ state, onUpdateInstru
             </button>
             {!isAdding && (
               <button 
-                onClick={() => {
-                  const p = prompt('Enter Admin PIN to delete section:');
-                  if(p === '1535') {
-                    onUpdateInstructions(state.instructions.filter(s => s.id !== editForm.id));
-                    setEditingId(null);
-                    setEditForm(null);
-                  } else {
-                    alert('Invalid PIN');
-                  }
-                }}
+                onClick={handleDeleteAttempt}
                 className="w-full mt-4 py-3 text-rose-500 text-[10px] font-black uppercase tracking-widest italic"
               >
                 Delete Section

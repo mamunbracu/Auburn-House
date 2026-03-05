@@ -349,6 +349,7 @@ const App: React.FC = () => {
   const [isThemeSelectorOpen, setIsThemeSelectorOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isKnowledgeModalOpen, setIsKnowledgeModalOpen] = useState(false);
+  const [showClearPin, setShowClearPin] = useState(false);
   
   const [state, setState] = useState<AppState>(getInitialState());
   const socketRef = useRef<any>(null);
@@ -505,11 +506,6 @@ const App: React.FC = () => {
   };
 
   const clearNotifications = () => {
-    const pin = prompt('Enter Admin PIN to clear notifications:');
-    if (pin !== '1535') {
-      toast.error('Invalid PIN');
-      return;
-    }
     setState(prev => ({
       ...prev,
       notifications: []
@@ -559,11 +555,6 @@ const App: React.FC = () => {
   };
 
   const handleDeleteBill = (id: string) => {
-    const pin = prompt('Enter Admin PIN to delete bill:');
-    if (pin !== '1535') {
-      toast.error('Invalid PIN');
-      return;
-    }
     const bill = state.bills.find(b => b.id === id);
     setState(p => ({ ...p, bills: p.bills.filter(b => b.id !== id) }));
     if (bill) {
@@ -579,11 +570,6 @@ const App: React.FC = () => {
   };
 
   const handleDeleteNotice = (id: string) => {
-    const pin = prompt('Enter Admin PIN to delete notice:');
-    if (pin !== '1535') {
-      toast.error('Invalid PIN');
-      return;
-    }
     setState(prev => ({ ...prev, notices: prev.notices.filter(n => n.id !== id) }));
     toast.success('Notice deleted.');
   };
@@ -621,11 +607,6 @@ const App: React.FC = () => {
   };
 
   const handleDeleteMember = (id: string) => {
-    const pin = prompt('Enter Admin PIN to remove member:');
-    if (pin !== '1535') {
-      toast.error('Invalid PIN');
-      return;
-    }
     const member = state.members.find(m => m.id === id);
     setState(prev => ({
       ...prev,
@@ -767,7 +748,14 @@ const App: React.FC = () => {
           notifications={state.notifications || []} 
           onClose={() => setIsNotificationOpen(false)} 
           onMarkRead={markAllNotificationsRead}
-          onClear={clearNotifications}
+          onClear={() => setShowClearPin(true)}
+        />
+      )}
+
+      {showClearPin && (
+        <PinModal 
+          onSuccess={() => { clearNotifications(); setShowClearPin(false); }} 
+          onCancel={() => setShowClearPin(false)} 
         />
       )}
 

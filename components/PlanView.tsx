@@ -231,102 +231,106 @@ const PlanView: React.FC<PlanViewProps> = ({ roommates, overrides, onAddOverride
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {(activeFilter === 'all' || activeFilter === 'laundry') && (
-                  <div 
-                    onClick={() => handleEdit(date, 'Laundry', l)} 
-                    className={`bg-white p-6 rounded-[2rem] border-2 flex justify-between items-center cursor-pointer transition-all hover:shadow-2xl hover:border-indigo-600 active:scale-[0.97] group ${overrides.some(o => o.date === dStr && o.type === 'Laundry') ? 'border-indigo-600 bg-indigo-50/50' : 'border-slate-50 shadow-sm'}`}
-                  >
-                    <div className="flex flex-col gap-1">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                         🧺 Laundry Duty
-                      </span>
-                      <span className="text-lg sm:text-xl font-black text-slate-800 uppercase italic tracking-tighter truncate max-w-[120px] sm:max-w-none">
-                        {l}
-                      </span>
+                  <div className="space-y-2">
+                    <div 
+                      onClick={() => handleEdit(date, 'Laundry', l)} 
+                      className={`bg-white p-6 rounded-[2rem] border-2 flex justify-between items-center cursor-pointer transition-all hover:shadow-2xl hover:border-indigo-600 active:scale-[0.97] group ${overrides.some(o => o.date === dStr && o.type === 'Laundry') ? 'border-indigo-600 bg-indigo-50/50' : 'border-slate-50 shadow-sm'}`}
+                    >
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                           🧺 Laundry Duty
+                        </span>
+                        <span className="text-lg sm:text-xl font-black text-slate-800 uppercase italic tracking-tighter truncate max-w-[120px] sm:max-w-none">
+                          {l}
+                        </span>
+                      </div>
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${overrides.some(o => o.date === dStr && o.type === 'Laundry') ? 'bg-indigo-600 text-white' : 'bg-slate-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white'}`}>
+                        <User size={20} strokeWidth={3} />
+                      </div>
                     </div>
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${overrides.some(o => o.date === dStr && o.type === 'Laundry') ? 'bg-indigo-600 text-white' : 'bg-slate-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white'}`}>
-                      <User size={20} strokeWidth={3} />
-                    </div>
-                  </div>
-                  {overrides.find(o => o.date === dStr && o.type === 'Laundry')?.notes && (
-                    <div className="mt-2 px-1 text-[10px] font-bold text-slate-500 italic truncate flex items-center gap-1">
-                      <Info size={10} /> {overrides.find(o => o.date === dStr && o.type === 'Laundry')?.notes}
-                    </div>
-                  )}
+                    {overrides.find(o => o.date === dStr && o.type === 'Laundry')?.notes && (
+                      <div className="mt-2 px-1 text-[10px] font-bold text-slate-500 italic truncate flex items-center gap-1">
+                        <Info size={10} /> {overrides.find(o => o.date === dStr && o.type === 'Laundry')?.notes}
+                      </div>
+                    )}
                   </div>
                 )}
                 
                 {(activeFilter === 'all' || activeFilter === 'cleaning') && (idx % 3 === 0 || overrides.some(o => o.date === dStr && o.type === 'Cleaning')) && (
-                  <div 
-                    onClick={() => handleEdit(date, 'Cleaning', c)} 
-                    className={`bg-white p-6 rounded-[2rem] border-2 flex justify-between items-center cursor-pointer transition-all hover:shadow-2xl hover:border-amber-600 active:scale-[0.97] group ${overrides.some(o => o.date === dStr && o.type === 'Cleaning') ? 'border-amber-600 bg-amber-50/50' : 'border-slate-50 shadow-sm'}`}
-                  >
-                    <div className="flex flex-col gap-1">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                         🧹 Deep Clean
-                      </span>
-                      <span className="text-lg sm:text-xl font-black text-slate-800 uppercase italic tracking-tighter truncate max-w-[120px] sm:max-w-none">
-                        {c}
-                      </span>
+                  <div className="space-y-2">
+                    <div 
+                      onClick={() => handleEdit(date, 'Cleaning', c)} 
+                      className={`bg-white p-6 rounded-[2rem] border-2 flex justify-between items-center cursor-pointer transition-all hover:shadow-2xl hover:border-amber-600 active:scale-[0.97] group ${overrides.some(o => o.date === dStr && o.type === 'Cleaning') ? 'border-amber-600 bg-amber-50/50' : 'border-slate-50 shadow-sm'}`}
+                    >
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                           🧹 Deep Clean
+                        </span>
+                        <span className="text-lg sm:text-xl font-black text-slate-800 uppercase italic tracking-tighter truncate max-w-[120px] sm:max-w-none">
+                          {c}
+                        </span>
+                      </div>
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${overrides.some(o => o.date === dStr && o.type === 'Cleaning') ? 'bg-amber-600 text-white' : 'bg-slate-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white'}`}>
+                        <Info size={20} strokeWidth={3} />
+                      </div>
                     </div>
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${overrides.some(o => o.date === dStr && o.type === 'Cleaning') ? 'bg-amber-600 text-white' : 'bg-slate-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white'}`}>
-                      <Info size={20} strokeWidth={3} />
-                    </div>
-                  </div>
-                  {overrides.find(o => o.date === dStr && o.type === 'Cleaning')?.notes && (
-                    <div className="mt-2 px-1 text-[10px] font-bold text-slate-500 italic truncate flex items-center gap-1">
-                      <Info size={10} /> {overrides.find(o => o.date === dStr && o.type === 'Cleaning')?.notes}
-                    </div>
-                  )}
+                    {overrides.find(o => o.date === dStr && o.type === 'Cleaning')?.notes && (
+                      <div className="mt-2 px-1 text-[10px] font-bold text-slate-500 italic truncate flex items-center gap-1">
+                        <Info size={10} /> {overrides.find(o => o.date === dStr && o.type === 'Cleaning')?.notes}
+                      </div>
+                    )}
                   </div>
                 )}
 
                 {(activeFilter === 'all' || activeFilter === 'grass') && (isGrassDay || overrides.some(o => o.date === dStr && o.type === 'Grass')) && (
-                  <div 
-                    onClick={() => handleEdit(date, 'Grass', g)} 
-                    className={`bg-white p-6 rounded-[2rem] border-2 flex justify-between items-center cursor-pointer transition-all hover:shadow-2xl hover:border-emerald-600 active:scale-[0.97] group ${overrides.some(o => o.date === dStr && o.type === 'Grass') ? 'border-emerald-600 bg-emerald-50/50' : 'border-slate-50 shadow-sm'}`}
-                  >
-                    <div className="flex flex-col gap-1">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                         🌱 Garden/Yard
-                      </span>
-                      <span className="text-lg sm:text-xl font-black text-slate-800 uppercase italic tracking-tighter truncate max-w-[120px] sm:max-w-none">
-                        {g}
-                      </span>
+                  <div className="space-y-2">
+                    <div 
+                      onClick={() => handleEdit(date, 'Grass', g)} 
+                      className={`bg-white p-6 rounded-[2rem] border-2 flex justify-between items-center cursor-pointer transition-all hover:shadow-2xl hover:border-emerald-600 active:scale-[0.97] group ${overrides.some(o => o.date === dStr && o.type === 'Grass') ? 'border-emerald-600 bg-emerald-50/50' : 'border-slate-50 shadow-sm'}`}
+                    >
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                           🌱 Garden/Yard
+                        </span>
+                        <span className="text-lg sm:text-xl font-black text-slate-800 uppercase italic tracking-tighter truncate max-w-[120px] sm:max-w-none">
+                          {g}
+                        </span>
+                      </div>
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${overrides.some(o => o.date === dStr && o.type === 'Grass') ? 'bg-emerald-600 text-white' : 'bg-slate-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white'}`}>
+                        <Calendar size={20} strokeWidth={3} />
+                      </div>
                     </div>
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${overrides.some(o => o.date === dStr && o.type === 'Grass') ? 'bg-emerald-600 text-white' : 'bg-slate-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white'}`}>
-                      <Calendar size={20} strokeWidth={3} />
-                    </div>
-                  </div>
-                  {overrides.find(o => o.date === dStr && o.type === 'Grass')?.notes && (
-                    <div className="mt-2 px-1 text-[10px] font-bold text-slate-500 italic truncate flex items-center gap-1">
-                      <Info size={10} /> {overrides.find(o => o.date === dStr && o.type === 'Grass')?.notes}
-                    </div>
-                  )}
+                    {overrides.find(o => o.date === dStr && o.type === 'Grass')?.notes && (
+                      <div className="mt-2 px-1 text-[10px] font-bold text-slate-500 italic truncate flex items-center gap-1">
+                        <Info size={10} /> {overrides.find(o => o.date === dStr && o.type === 'Grass')?.notes}
+                      </div>
+                    )}
                   </div>
                 )}
 
                 {(activeFilter === 'all' || activeFilter === 'bins') && (isBinDay || overrides.some(o => o.date === dStr && o.type === 'Bins')) && (
-                  <div 
-                    onClick={() => handleEdit(date, 'Bins', b)} 
-                    className={`bg-white p-6 rounded-[2rem] border-2 flex justify-between items-center cursor-pointer transition-all hover:shadow-2xl hover:border-rose-600 active:scale-[0.97] group ${overrides.some(o => o.date === dStr && o.type === 'Bins') ? 'border-rose-600 bg-rose-50/50' : 'border-slate-50 shadow-sm'}`}
-                  >
-                    <div className="flex flex-col gap-1">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                         ♻️ Waste & Bins
-                      </span>
-                      <span className="text-lg sm:text-xl font-black text-slate-800 uppercase italic tracking-tighter truncate max-w-[120px] sm:max-w-none">
-                        {b !== "N/A" ? b : "Extra Cycle"}
-                      </span>
+                  <div className="space-y-2">
+                    <div 
+                      onClick={() => handleEdit(date, 'Bins', b)} 
+                      className={`bg-white p-6 rounded-[2rem] border-2 flex justify-between items-center cursor-pointer transition-all hover:shadow-2xl hover:border-rose-600 active:scale-[0.97] group ${overrides.some(o => o.date === dStr && o.type === 'Bins') ? 'border-rose-600 bg-rose-50/50' : 'border-slate-50 shadow-sm'}`}
+                    >
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                           ♻️ Waste & Bins
+                        </span>
+                        <span className="text-lg sm:text-xl font-black text-slate-800 uppercase italic tracking-tighter truncate max-w-[120px] sm:max-w-none">
+                          {b !== "N/A" ? b : "Extra Cycle"}
+                        </span>
+                      </div>
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${overrides.some(o => o.date === dStr && o.type === 'Bins') ? 'bg-rose-600 text-white' : 'bg-slate-50 text-rose-600 group-hover:bg-rose-600 group-hover:text-white'}`}>
+                        <Calendar size={20} strokeWidth={3} />
+                      </div>
                     </div>
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${overrides.some(o => o.date === dStr && o.type === 'Bins') ? 'bg-rose-600 text-white' : 'bg-slate-50 text-rose-600 group-hover:bg-rose-600 group-hover:text-white'}`}>
-                      <Calendar size={20} strokeWidth={3} />
-                    </div>
-                  </div>
-                  {overrides.find(o => o.date === dStr && o.type === 'Bins')?.notes && (
-                    <div className="mt-2 px-1 text-[10px] font-bold text-slate-500 italic truncate flex items-center gap-1">
-                      <Info size={10} /> {overrides.find(o => o.date === dStr && o.type === 'Bins')?.notes}
-                    </div>
-                  )}
+                    {overrides.find(o => o.date === dStr && o.type === 'Bins')?.notes && (
+                      <div className="mt-2 px-1 text-[10px] font-bold text-slate-500 italic truncate flex items-center gap-1">
+                        <Info size={10} /> {overrides.find(o => o.date === dStr && o.type === 'Bins')?.notes}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

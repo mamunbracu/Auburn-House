@@ -34,19 +34,26 @@ app.use(bodyParser.json({ limit: '50mb' }));
 const readDB = async () => {
   if (!supabase || !supabaseUrl || !supabaseKey) return null;
   try {
-    const { data, error } = await supabase
+    // Add a 4s timeout to server-side Supabase read
+    const supabasePromise = supabase
       .from(TABLE_NAME)
       .select('state')
       .eq('id', ROW_ID)
       .single();
     
-    if (error) {
-      console.error('Supabase read error:', error);
+    const timeoutPromise = new Promise<null>((_, reject) => 
+      setTimeout(() => reject(new Error('Supabase server timeout')), 4000)
+    );
+
+    const result: any = await Promise.race([supabasePromise, timeoutPromise]);
+    
+    if (result.error) {
+      console.error('Supabase read error:', result.error);
       return null;
     }
-    return data?.state;
+    return result.data?.state;
   } catch (e) {
-    console.error('Supabase catch error:', e);
+    console.warn('Supabase read fallback triggered:', e instanceof Error ? e.message : 'Unknown error');
     return null;
   }
 };

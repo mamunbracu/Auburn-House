@@ -120,22 +120,22 @@ export const database = {
       // Try Supabase first (for Vercel/Production)
       if (supabaseService.isEnabled()) {
         try {
-          // Race Supabase load against a 3s timeout
+          // Race Supabase load against a 5s timeout (increased from 3s)
           const supabasePromise = supabaseService.loadState();
           const timeoutPromise = new Promise<null>((_, reject) => 
-            setTimeout(() => reject(new Error('Supabase timeout')), 3000)
+            setTimeout(() => reject(new Error('Supabase timeout')), 5000)
           );
           
           const cloudState = await Promise.race([supabasePromise, timeoutPromise]);
           if (cloudState) return sanitizeState(cloudState);
         } catch (err) {
-          console.error('Supabase: Load failed or timed out, falling back to local API', err);
+          console.warn('Supabase: Load timed out or failed, falling back to local API', err instanceof Error ? err.message : 'Unknown error');
         }
       }
 
       // Fallback to local API
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000); // Reduced to 2s timeout
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout for local API call
 
       const response = await fetch('/api/state', { signal: controller.signal });
       clearTimeout(timeoutId);
@@ -144,7 +144,7 @@ export const database = {
       const data = await response.json();
       return sanitizeState(data);
     } catch (error) {
-      console.error('Database: Load failed completely', error);
+      console.warn('Database: Load fallback to initial state', error instanceof Error ? error.message : 'Unknown error');
       return getInitialState();
     }
   },

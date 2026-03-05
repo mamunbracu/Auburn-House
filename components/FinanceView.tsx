@@ -19,9 +19,11 @@ import {
   Download,
   Clock,
   ArrowUpRight,
-  ChevronDown
+  ChevronDown,
+  Divide
 } from 'lucide-react';
 import PinModal from './PinModal';
+import BillCalculator from './BillCalculator';
 
 interface FinanceViewProps {
   roommates: Member[];
@@ -45,7 +47,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({
   onAddPayment,
   onUpdatePayments 
 }) => {
-  const [view, setView] = useState<'ledger' | 'expenses' | 'rent' | 'calc' | 'history'>('ledger');
+  const [view, setView] = useState<'ledger' | 'expenses' | 'rent' | 'calc' | 'history' | 'bill-calc'>('ledger');
   const [showHistoryLimit, setHistoryLimit] = useState(5);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [pinAction, setPinAction] = useState<{ type: string, payload: any } | null>(null);
@@ -71,6 +73,34 @@ const FinanceView: React.FC<FinanceViewProps> = ({
     billingPeriodEnd: format(new Date(), 'yyyy-MM-dd'),
     memberStayPeriods: roommates.reduce((acc, r) => ({ ...acc, [r.name]: { start: format(new Date(), 'yyyy-MM-dd'), end: format(new Date(), 'yyyy-MM-dd') } }), {} as Record<string, { start: string, end: string }>)
   });
+
+  const allFinancialMembers = useMemo(() => {
+    const names = new Set<string>();
+    roommates.forEach(r => names.add(r.name));
+    bills.forEach(b => {
+      if (b.paidBy && b.paidBy !== 'Not Paid Yet') names.add(b.paidBy);
+      if (b.memberFinances) {
+        Object.keys(b.memberFinances).forEach(name => names.add(name));
+      }
+    });
+    payments.forEach(p => names.add(p.memberId));
+
+    return Array.from(names).map(name => {
+      const currentMember = roommates.find(r => r.name === name);
+      if (currentMember) return currentMember;
+      return {
+        id: `prev-${name}`,
+        name,
+        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`,
+        phone: 'N/A',
+        email: 'N/A',
+        dob: 'N/A',
+        initialAdvance: 0,
+        rentShare: 0,
+        isHome: false
+      } as Member;
+    });
+  }, [roommates, bills, payments]);
 
   const rentDates = useMemo(() => getRentSchedule(12), []);
 
@@ -195,7 +225,19 @@ const FinanceView: React.FC<FinanceViewProps> = ({
   };
 
   const calculateMemberShare = (bill: BillItem, memberName: string) => {
+    // If we have explicit finances for this member, use them
+    if (bill.memberFinances && bill.memberFinances[memberName]) {
+      return bill.memberFinances[memberName].due;
+    }
+
+    // If memberFinances exists but this member isn't in it, they owe nothing for this bill
+    if (bill.memberFinances && Object.keys(bill.memberFinances).length > 0) {
+      return 0;
+    }
+
     if (!bill.billingPeriodStart || !bill.billingPeriodEnd || !bill.memberStayPeriods) {
+      // If the member is not in the current roommates list, they shouldn't be part of a generic split
+      if (!roommates.some(r => r.name === memberName)) return 0;
       return bill.totalAmount / roommates.length;
     }
     
@@ -210,7 +252,10 @@ const FinanceView: React.FC<FinanceViewProps> = ({
       }
     }
     
-    if (totalStayDays === 0) return bill.totalAmount / roommates.length;
+    if (totalStayDays === 0) {
+      if (!roommates.some(r => r.name === memberName)) return 0;
+      return bill.totalAmount / roommates.length;
+    }
     
     return (memberStayDays / totalStayDays) * bill.totalAmount;
   };
@@ -229,11 +274,11 @@ const FinanceView: React.FC<FinanceViewProps> = ({
         />
       )}
 
-      <div className="flex p-1 bg-slate-900/90 rounded-[1.5rem] sm:rounded-[2.5rem] border border-white/5 shadow-2xl flex-wrap gap-1">
-        {(['ledger', 'expenses', 'rent', 'calc', 'history'] as const).map((t) => (
-          <button key={t} onClick={() => setView(t)} className={`flex-1 basis-[30%] sm:basis-auto min-w-[70px] sm:min-w-[100px] py-3 px-1 sm:px-6 text-[9px] sm:text-[10px] font-black uppercase rounded-[1rem] sm:rounded-[2rem] transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 whitespace-nowrap shrink-0 ${view === t ? 'bg-primary text-white shadow-xl scale-[1.02]' : 'text-slate-500 hover:text-slate-400'}`}>
-            {t === 'ledger' ? <Receipt size={14} /> : t === 'expenses' ? <PieChart size={14} /> : t === 'rent' ? <Calendar size={14} /> : t === 'calc' ? <Calculator size={14} /> : <History size={14} />}
-            <span className="italic">{t === 'ledger' ? 'Current' : t === 'expenses' ? 'Tracker' : t === 'rent' ? 'Rent' : t === 'calc' ? 'Calc' : 'History'}</span>
+      <div className="grid grid-cols-2 sm:flex p-1 bg-slate-900/90 rounded-[1.5rem] sm:rounded-[2.5rem] border border-white/5 shadow-2xl gap-1">
+        {(['ledger', 'expenses', 'rent', 'calc', 'bill-calc', 'history'] as const).map((t) => (
+          <button key={t} onClick={() => setView(t)} className={`flex-1 py-3 px-1 sm:px-6 text-[9px] sm:text-[10px] font-black uppercase rounded-[1rem] sm:rounded-[2rem] transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 whitespace-nowrap shrink-0 ${view === t ? 'bg-primary text-white shadow-xl scale-[1.02]' : 'text-slate-500 hover:text-slate-400'}`}>
+            {t === 'ledger' ? <Receipt size={14} /> : t === 'expenses' ? <PieChart size={14} /> : t === 'rent' ? <Calendar size={14} /> : t === 'calc' ? <Calculator size={14} /> : t === 'bill-calc' ? <Divide size={14} /> : <History size={14} />}
+            <span className="italic">{t === 'ledger' ? 'Bills' : t === 'expenses' ? 'Tracker' : t === 'rent' ? 'Rent' : t === 'calc' ? 'Calc' : t === 'bill-calc' ? 'Calculate Bill' : 'History'}</span>
           </button>
         ))}
       </div>
@@ -415,26 +460,14 @@ const FinanceView: React.FC<FinanceViewProps> = ({
         <div className="space-y-6 animate-in fade-in duration-300">
           <header><h2 className="text-2xl font-black text-slate-800 dark:text-white italic uppercase tracking-tighter">Net Debt Summary</h2></header>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {roommates.map(member => {
-              const remaining = bills.reduce((sum, b) => {
-                if (b.paidBy === member.name) return sum;
-                if (b.paidBy === 'Not Paid Yet') return sum + calculateMemberShare(b, member.name);
-                return sum + calculateMemberShare(b, member.name);
-              }, 0) - payments.filter(p => p.memberId === member.name).reduce((sum, p) => sum + p.amount, 0);
-              
-              // If the member paid for bills, we should subtract the amount others owe them from their debt
-              // Wait, the current logic is:
-              // Debt = (sum of their share in bills they didn't pay) - (payments they made)
-              // But if they paid a bill, others owe them. So their debt should be reduced by what others owe them.
-              // Let's refine the net debt calculation:
-              // Net Debt = (Total of their shares across ALL bills) - (Total they paid for bills) - (Total payments they made to others) + (Total payments others made to them)
-              // Actually, simpler:
-              // Total Owed By Member = sum of their shares in all bills
-              // Total Paid By Member = sum of (bill.totalAmount if they paid it) + sum of (payments they made)
-              // Net Debt = Total Owed By Member - Total Paid By Member
-              
+            {allFinancialMembers.map(member => {
               const totalOwed = bills.reduce((sum, b) => sum + calculateMemberShare(b, member.name), 0);
-              const totalPaid = bills.reduce((sum, b) => b.paidBy === member.name ? sum + b.totalAmount : sum, 0) + payments.filter(p => p.memberId === member.name).reduce((sum, p) => sum + p.amount, 0);
+              const totalPaid = bills.reduce((sum, b) => b.paidBy === member.name ? sum + b.totalAmount : sum, 0) 
+                              + payments.filter(p => p.memberId === member.name).reduce((sum, p) => sum + p.amount, 0)
+                              - payments.filter(p => {
+                                  const bill = bills.find(b => b.id === p.billId);
+                                  return bill && bill.paidBy === member.name;
+                                }).reduce((sum, p) => sum + p.amount, 0);
               const netDebt = totalOwed - totalPaid;
 
               return (
@@ -491,7 +524,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({
             <div className="flex justify-between items-center mb-10"><h3 className="font-black text-slate-800 dark:text-white uppercase text-lg italic tracking-tighter">Resident Ledger</h3><button onClick={() => setActiveMemberId(null)} className="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-400 flex items-center justify-center"><X size={24} /></button></div>
             <div className="flex-1 overflow-y-auto no-scrollbar">
               {bills.map(bill => {
-                const activeMemberName = roommates.find(r => r.id === activeMemberId)?.name || '';
+                const activeMemberName = allFinancialMembers.find(r => r.id === activeMemberId)?.name || '';
                 const isPayer = bill.paidBy === activeMemberName;
                 const split = calculateMemberShare(bill, activeMemberName);
                 
@@ -518,6 +551,10 @@ const FinanceView: React.FC<FinanceViewProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {view === 'bill-calc' && (
+        <BillCalculator roommates={roommates} onAddBill={onAddBill} />
       )}
 
       {view === 'calc' && (
